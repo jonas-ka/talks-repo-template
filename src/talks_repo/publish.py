@@ -74,7 +74,7 @@ def match_trip_folder(folders: dict[str, dict[str, Any]], yymm: str, event: str)
             scored.append((score, -len(n), n))
     if scored:
         return max(scored)[2]
-    return cands[0] if len(cands) == 1 else None
+    return None   # a YYMM. folder for another event is not this trip; a new folder is made
 
 
 def deliverables(slug: str) -> tuple[str, list[Path], dict[str, Any]]:
@@ -88,13 +88,26 @@ def deliverables(slug: str) -> tuple[str, list[Path], dict[str, Any]]:
     stem = pdfs[0].stem
     files = [p for p in (folder / f"{stem}{ext}" for ext in (".pdf", ".pptx", ".html")) if p.exists()]
     brief = yaml.safe_load((folder / "brief.yaml").read_text(encoding="utf-8")) if (folder / "brief.yaml").exists() else {}
+    if not brief:                            # posters have no brief; the spine knows date and event
+        from talks_repo import TALKS_YAML
+
+        for t in yaml.safe_load(TALKS_YAML.read_text(encoding="utf-8")) or []:
+            if t.get("id") == slug:
+                brief = {"date": t.get("date"), "event": t.get("event")}
+                break
     return stem, files, brief
 
 
 def publish(slug: str, folder: str | None = None, dry_run: bool = False) -> dict[str, Any]:
     stem, files, brief = deliverables(slug)
-    yymm = stem.split(".")[0]
-    event = str(brief.get("event") or stem.split(".", 1)[1].rsplit("-", 1)[0])
+    if re.match(r"^\d{4}\.", stem):
+        yymm = stem.split(".")[0]
+    else:                                   # a hand-named file (posters): date from the brief
+        d = str(brief.get("date") or "")
+        if not re.match(r"^\d{4}-\d{2}", d):
+            raise ValueError(f"{stem}: no YYMM. prefix and no date in brief.yaml")
+        yymm = d[2:4] + d[5:7]
+    event = str(brief.get("event") or (stem.split(".", 1)[1].rsplit("-", 1)[0] if "." in stem else stem))
     drive = Drive()
     root = talks_and_travel(drive)
     trips = _children(drive, root)

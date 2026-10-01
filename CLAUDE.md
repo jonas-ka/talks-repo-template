@@ -52,7 +52,10 @@ Read that file before starting any pipeline stage.
   public is the *method*: `uv run talks make-template ../talks-repo-template` regenerates the
   public template repository (pipeline, themes, docs, CLAUDE.md with placeholders, a worked
   example) from an allow-list, scrubs names, paths and ids, and refuses to finish if a private
-  pattern survives. The template is never edited by hand; change this repo and regenerate.
+  pattern survives; `--push` commits and pushes it to github.com/<you>/talks-repo-template
+  (public, marked as a template) with the source commit in the message. The template is never
+  edited by hand; change this repo and regenerate, after every change to themes, docs or
+  CLAUDE.md that colleagues should see.
   Deliverables (PDF, PPTX, HTML) go to the author's Drive with `talks publish <slug>`
   (`My Drive/1-Areas/Research/Talks-and-Travel/<YYMM.Event>/<deck>/`, create only).
 
