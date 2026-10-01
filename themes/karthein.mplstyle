@@ -1,0 +1,42 @@
+# Karthein Lab figure style for matplotlib (docs/STYLE.md, docs/FIGURES_README.md).
+#   import matplotlib.pyplot as plt; plt.style.use("themes/karthein.mplstyle")
+# Colours: the lab four in colour-blind-safe order, then black and grey. Full box, black bold
+# axis labels, regular ticks, legends inside without a frame. What a style file cannot do:
+# one colour per thing across figures, text never on data, PDF + SVG + PNG (300 dpi).
+
+font.family: STIX Two Text
+mathtext.fontset: stix
+font.size: 10
+axes.labelsize: 11
+axes.labelweight: bold
+axes.titlesize: 10.5
+axes.titleweight: bold
+axes.titlelocation: center
+xtick.labelsize: 9.5
+ytick.labelsize: 9.5
+legend.fontsize: 9.5
+
+axes.prop_cycle: cycler('color', ['FFCC00', 'FF2D55', '00A2FF', '61D935', '000000', '7F7F7F'])
+axes.edgecolor: black
+axes.labelcolor: black
+axes.linewidth: 0.9
+axes.spines.top: True
+axes.spines.right: True
+axes.grid: False
+xtick.color: black
+ytick.color: black
+xtick.direction: out
+ytick.direction: out
+
+lines.linewidth: 1.6
+lines.markersize: 4
+
+legend.frameon: False
+legend.loc: best
+
+figure.figsize: 6, 4
+figure.dpi: 100
+savefig.dpi: 300
+savefig.bbox: tight
+pdf.fonttype: 42
+svg.fonttype: none

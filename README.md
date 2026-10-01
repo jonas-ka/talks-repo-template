@@ -38,12 +38,12 @@ RECIPE.md          the narrative: how to set this up with Claude Code, step by s
 src/talks_repo/    the pipeline: discover -> archive -> extract -> classify -> catalog -> generate,
                    layout check, html and pptx export, drive sync, template export
 themes/            karthein.typ (slides), karthein-poster.typ (A0 posters), palette.yaml (colours
-                   with measured contrast ratios), logos/ (placeholders: put your own marks here)
+                   with measured contrast ratios), karthein.mplstyle (figures), logos/ (placeholders)
 blocks/            reusable slide modules; two examples
 assets/            catalog.yaml (one entry per figure), figures/, sources/ (scripts + data)
 talks/             one folder per talk: brief.yaml -> main.typ -> PDF/HTML/PPTX + report.md
-docs/              LOGBOOK_GUIDE.md + labnotes-template.typ (the lab notebook), FIGURES_README.md
-                   (the figure library: folder layout, versions, variants, style rules)
+docs/              STYLE.md (the style on one page), LOGBOOK_GUIDE.md + labnotes-template.typ (the
+                   lab notebook), FIGURES_README.md (figure library: folders, versions, style rules)
 scripts/           AppleScript exporters for Keynote and PowerPoint; log-book figure tiles
 ```
 

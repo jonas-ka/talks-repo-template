@@ -46,6 +46,10 @@ assets/figures/*.svg
 !assets/figures/plot-vision-h200-throughput-poster-v6.svg
 !assets/figures/plot-vision-h200-throughput-v7.svg
 !assets/figures/plot-vision-h200-throughput-poster-v7.svg
+!assets/figures/plot-vision-h200-throughput-v8.svg
+!assets/figures/plot-vision-h200-throughput-poster-v8.svg
+!assets/figures/plot-speed-comparisons-legacy-FastSims-Surrogate-M4Pro-H200-v9.svg
+!assets/figures/plot-speed-comparisons-legacy-FastSims-Surrogate-M4Pro-H200-poster-v9.svg
 
 # Build outputs and intermediates (PPTX exports are covered by *.pptx above)
 talks/**/*.pdf

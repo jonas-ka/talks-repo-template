@@ -48,7 +48,13 @@ Read that file before starting any pipeline stage.
 - **Superseded assets never appear in new talks.** If catalog entry B lists
   `supersedes: A`, then A is dead for generation.
 - **Every figure and equation has `alt` text.** The build refuses assets without it.
-- **The repo stays private.** Unpublished plots are never pushed anywhere public.
+- **The repo stays private.** Unpublished plots are never pushed anywhere public. What is
+  public is the *method*: `uv run talks make-template ../talks-repo-template` regenerates the
+  public template repository (pipeline, themes, docs, CLAUDE.md with placeholders, a worked
+  example) from an allow-list, scrubs names, paths and ids, and refuses to finish if a private
+  pattern survives. The template is never edited by hand; change this repo and regenerate.
+  Deliverables (PDF, PPTX, HTML) go to the author's Drive with `talks publish <slug>`
+  (`My Drive/1-Areas/Research/Talks-and-Travel/<YYMM.Event>/<deck>/`, create only).
 
 ## Priorities
 
@@ -348,7 +354,9 @@ timing, asset problems, and `updates.md` entries newer than the last talk on the
   until then, do not invent them).
 - Prefer the newest version of a figure. Never use a superseded asset.
 - Plot palettes are colour-blind-safe; the approved palette and its measured contrast
-  ratios are recorded in `themes/palette.yaml`. Fonts: STIX Two Text and STIX Two Math.
+  ratios are recorded in `themes/palette.yaml`; `themes/karthein.mplstyle` applies the figure
+  style in matplotlib; `docs/STYLE.md` is the one-page summary of the whole style. Fonts: STIX
+  Two Text and STIX Two Math.
 - Theme: `themes/karthein.typ` (Touying). Slide titles via `==` or `#slide(title: ...)`;
   figures via `#fig(path, alt: ...)`, equations via `#eq(alt: ...)[$...$]`; compile with
   `typst compile --root . --pdf-standard ua-1`.
