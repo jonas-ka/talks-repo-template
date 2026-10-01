@@ -126,6 +126,30 @@ Two side effects turned out to be the most valuable parts for the group.
   conversation and the git log; if the chat was compacted, the git log fills the gaps."*
   Then, after every substantial session: *"add a log-book entry."*
 
+## By the numbers (from the log book of the first two weeks)
+
+- Day 1 (17 Sep): plan, `CLAUDE.md`, the spine from the CV (67 presentations, 0 unparsable
+  lines, 19 rows flagged and checked), discovery (864 files, 281 decks, 212 the author's own,
+  41 of 67 talks attached automatically, 50 after hand corrections), enrichment, the archive
+  export, extraction and classification on five test decks, the accessibility spike, the
+  theme from three reference decks.
+- Day 2 (18 Sep): the full catalog (Phase 0 complete) and the first real deck end to end.
+- Keynote export: the batch stopped after three failures until the exporter opened files the
+  way a double-click does (`open -a Keynote`): then 32 of 32 decks, 1192 slides, 0 failures.
+- Google Slides through the API: 10 decks, 279 slides, 1003 original images, 571 of them
+  already carrying alt text (often the original file name — free provenance), 5 speaker notes
+  with the LaTeX of the equations exactly as typed.
+- Deduplication before spending: 887 picture uses → 493 unique images (exact and perceptual
+  hash); the sample classification batch cost $4.58 for 464 images (Batch API, half price),
+  mean confidence 0.89; a cluster id that could change when a better original appeared was
+  fixed *before* the full run, so nothing was classified twice.
+- Equations: 87 unique across 45 talks; 430 uses traced to Keynote's own LaTeX, 58 to speaker
+  notes, 10 needed vision; all 87 rendered with Typst + mitex 0.2.7.
+- Archive binaries (2.7 GB; 1.6 GB of PDFs) stay out of git and regenerate in fifteen minutes.
+- The first poster went through three review rounds in a day (empty band, <20 pt text, low
+  resolution rasters, rules through descenders, uneven rows); the fixes became the poster
+  theme's rules (card rows, one gutter, fill to the margin, text sizes, pphoto, stat-row).
+
 ## Pitfalls worth knowing before they cost you an afternoon
 
 - Touying reveal markers (`only`, `uncover`, `pause`) must sit at the top level of a slide or
@@ -146,3 +170,10 @@ Two side effects turned out to be the most valuable parts for the group.
 - Numbers on slides: print each with its label before it goes on a slide; two numbers read
   off one bare shell output got swapped once ("130 commits" was the count of figure folders).
 - Thumbnails of pages are rasters on purpose, sized to ~300 ppi of their *placed* size.
+- Cloud-synced folders (Drive, iCloud) hold undownloaded placeholders; a scan must skip and
+  flag them, and a person downloads the folder rather than a script pulling gigabytes.
+- Keynote's PPTX export rasterises inserted PDFs, but the originals survive inside the `.key`
+  package; Google Slides' PPTX and PDF exports are unreliable, the Slides API is not.
+- The author's "animations" were consecutive near-identical slides; treat a run as one block
+  with build stages, and take the figure from the last stage.
+- A session's context gets summarised when it grows; the git log and the log book carry over.

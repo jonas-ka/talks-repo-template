@@ -12,8 +12,10 @@ tokens, the rules Claude Code works by (`CLAUDE.md`), the log-book and figure-li
 guides, and a two-slide example that builds. No one's actual talks are in here; your own
 go into `talks/`, `blocks/` and `assets/` once you adopt it.
 
-**Read [RECIPE.md](RECIPE.md) first** — it is the "how I made this work with Claude Code"
-that the code cannot tell you.
+**New here? Start with [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)** — accounts, tools,
+the first run, and how to tune the template over your first talks. **Then
+[RECIPE.md](RECIPE.md)** — the "how I made this work with Claude Code" that the code cannot
+tell you.
 
 ## Quick start
 
@@ -42,8 +44,9 @@ themes/            karthein.typ (slides), karthein-poster.typ (A0 posters), pale
 blocks/            reusable slide modules; two examples
 assets/            catalog.yaml (one entry per figure), figures/, sources/ (scripts + data)
 talks/             one folder per talk: brief.yaml -> main.typ -> PDF/HTML/PPTX + report.md
-docs/              STYLE.md (the style on one page), LOGBOOK_GUIDE.md + labnotes-template.typ (the
-                   lab notebook), FIGURES_README.md (figure library: folders, versions, style rules)
+docs/              GETTING_STARTED.md (set-up to first talk), STYLE.md (the style on one page),
+                   LOGBOOK_GUIDE.md + labnotes-template.typ (the lab notebook), FIGURES_README.md
+                   (figure library: folders, versions, style rules)
 scripts/           AppleScript exporters for Keynote and PowerPoint; log-book figure tiles
 ```
 
