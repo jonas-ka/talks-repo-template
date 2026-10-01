@@ -378,6 +378,7 @@ def publish_cmd(
 def make_template_cmd(
     dest: Annotated[str, typer.Argument(help="Destination folder for the public template repository.")],
     force: Annotated[bool, typer.Option(help="Rebuild over a previous template (its .git is kept).")] = False,
+    push: Annotated[bool, typer.Option(help="After a clean scan, commit in the template's repo and push it.")] = False,
 ) -> None:
     """Export the public template: pipeline, themes, docs, a worked example; private content left out, scrubbed and scanned."""
     from pathlib import Path as _P
@@ -394,7 +395,12 @@ def make_template_cmd(
         for h in s["hits"]:
             typer.echo(f"  PRIVATE PATTERN: {h}")
         raise typer.Exit(code=1)
-    typer.echo("scan clean: no private paths, ids or credentials. Review the tree, then `git init` and push.")
+    typer.echo("scan clean: no private paths, ids or credentials.")
+    if push:
+        r = make_template.push(_P(dest))
+        typer.echo(f"pushed {r['commit']}: {r['message']}" if r["pushed"] else f"not pushed: {r['reason']}")
+    else:
+        typer.echo("Review the tree; `--push` commits and pushes it to the template repository.")
 
 
 @app.command("freeze")
