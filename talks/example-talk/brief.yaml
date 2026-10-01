@@ -1,0 +1,14 @@
+title: "Example Talk: Reproducible Slides From a Curated Library"
+date: 2026-10-01
+event: "Example Meeting"
+duration_min: 8
+audience: general
+topics: [example]
+abstract: |
+  A two-slide example that exercises the pipeline: a Typst diagram, a catalogued figure with
+  alt text, the layout check and the three exports.
+notes: |
+  Run `uv run talks generate example-talk`, then look at talks/example-talk/report.md.
+sponsors: false
+spine: true
+reserved_min: 2

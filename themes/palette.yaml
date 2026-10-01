@@ -1,0 +1,49 @@
+# Approved colours for the Karthein Lab talk theme, with measured WCAG contrast ratios.
+# Reference decks: 2026-08-radis-workshop, 2026-08-namo-workshop, 2026-03-aps-global.
+# Rules (CLAUDE.md, Accessibility): body text 4.5:1, large text and graphics 3:1,
+# colour never carries meaning alone (pair plot colours with markers and labels).
+
+text:
+  ink:     {hex: "#000000", on_white: 21.00, use: "body and titles"}
+  muted:   {hex: "#333333", on_white: 12.63, use: "secondary text, footer"}
+  link:    {hex: "#0097A7", on_white: 3.51,  use: "links and citations; large text only (>= 18 pt or 14 pt bold), or use link_text"}
+  link_text: {hex: "#007682", on_white: 4.65, use: "link/citation colour at body size (darkened teal)"}
+  brand:   {hex: "#500000", on_white: 15.66, use: "Your University maroon; rules, accents, sparingly"}
+
+background:
+  paper:   {hex: "#FFFFFF"}
+  band:    {hex: "#F0F0F0", use: "title-slide top band and footer bar"}
+
+# Group plot palette (from the author). These are mark colours for plots; keep the hues
+# as given so figures match the lab's other material.
+plot:
+  red:    {hex: "#FF2D55", on_white: 3.65, on_black: 5.76}
+  yellow: {hex: "#FFCC00", on_white: 1.51, on_black: 13.89}
+  green:  {hex: "#61D935", on_white: 1.83, on_black: 11.48}
+  blue:   {hex: "#00A2FF", on_white: 2.76, on_black: 7.61}
+# Pairwise contrast between the four is 1.2-2.4, below 3:1: adjacent series must
+# differ by marker shape or line style as well as colour.
+
+# Darkened variants that pass on white, for coloured text, legends, and thin lines.
+plot_text:   # >= 4.5:1 on white
+  red:    "#E2284B"
+  yellow: "#8E7200"
+  green:  "#3C8620"
+  blue:   "#007BC1"
+plot_lines:  # >= 3:1 on white (WCAG 1.4.11 non-text contrast)
+  red:    "#FF2D55"
+  yellow: "#B59000"
+  green:  "#4AA728"
+  blue:   "#009BF4"
+
+fonts:
+  text: "STIX Two Text"      # bold for titles, regular body, italic emphasis (as in the decks)
+  math: "STIX Two Math"
+  fallback: "Helvetica Neue"
+
+layout:
+  aspect: "16:9"
+  page_pt: [720, 405]        # 10 x 5.625 in, as the Google Slides decks
+  title_pt: 18               # bold, top-left
+  body_pt: 14                # 12-14 in the decks; 14 is the floor for new decks
+  footer_pt: 11
