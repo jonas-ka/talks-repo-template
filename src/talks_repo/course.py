@@ -120,12 +120,39 @@ def build_document(cfg: dict[str, Any], doc: dict[str, Any], force: bool = False
     return res
 
 
+def decks(course_dir: Path, cfg: dict[str, Any]) -> list[Path]:
+    """Slide lectures: folders with a brief.yaml matched by `decks:` (a glob), generated like talks."""
+    g = cfg.get("decks")
+    return sorted(p.parent for p in course_dir.glob(str(g))) if g else []
+
+
+def build_deck(folder: Path, force: bool = True) -> dict[str, Any]:
+    from talks_repo import generate as gen
+
+    rel = str(folder.relative_to(REPO_ROOT))
+    try:
+        r = gen.generate(rel, force=force)
+    except (FileExistsError, FileNotFoundError, KeyError) as exc:
+        return {"file": rel + "/brief.yaml", "deck": True, "errors": [str(exc)], "modes": {}, "html": None, "skipped": False,
+                "alts": {"equations": 0, "reviewed": 0, "draft": 0, "empty": 0, "stale": 0}}
+    errors = [] if r["compiled"] else [r["compile_error"]]
+    return {"file": rel + "/brief.yaml", "deck": True, "errors": errors, "skipped": False,
+            "modes": {"slides": {"pdf": r["pdf"], "pages": r["pages"]}} if r["compiled"] else {},
+            "html": (r["pdf"].rsplit(".", 1)[0] + ".html") if r["compiled"] and r.get("html") and "error" not in r["html"] else None,
+            "minutes": r["minutes"], "budget": r["budget"], "layout_flags": r["layout_flags"], "blocks": [b["id"] for b in r["blocks"]],
+            "alts": {"equations": 0, "reviewed": 0, "draft": 0, "empty": 0, "stale": 0}}
+
+
 def build(course_dir: Path, only: str | None = None, force: bool = False) -> dict[str, Any]:
     course_dir, cfg = load(course_dir)
     docs = documents(course_dir, cfg)
     if only:
         docs = [d for d in docs if only in str(d["typ"].relative_to(course_dir))]
     results = [build_document(cfg, d, force=force) for d in docs]
+    for folder in decks(course_dir, cfg):
+        if only and only not in str(folder.relative_to(course_dir)):
+            continue
+        results.append(build_deck(folder))
     report = [f"# {cfg.get('course', '')} build report", "", f"{datetime.now():%Y-%m-%d %H:%M}, {len(results)} document(s)", ""]
     for r in results:
         a = r["alts"]
@@ -136,8 +163,14 @@ def build(course_dir: Path, only: str | None = None, force: bool = False) -> dic
             report.append(f"- {m}: `{info['pdf']}` ({info['pages']} pages)")
         if r["html"]:
             report.append(f"- html: `{r['html']}`")
-        report.append(f"- equations: {a['equations']}, alt text reviewed {a['reviewed']}, draft {a['draft']}, missing {a['empty']}"
-                      + (f", stale {a['stale']}" if a["stale"] else "") + (" (unchanged, skipped)" if r["skipped"] else ""))
+        if r.get("deck"):
+            if r["modes"]:
+                report.append(f"- blocks: {', '.join(r['blocks'])} ({r['minutes']:.0f} of {r['budget']:.0f} min)")
+            for l in r.get("layout_flags", []):
+                report.append(f"- layout: {l}")
+        else:
+            report.append(f"- equations: {a['equations']}, alt text reviewed {a['reviewed']}, draft {a['draft']}, missing {a['empty']}"
+                          + (f", stale {a['stale']}" if a["stale"] else "") + (" (unchanged, skipped)" if r["skipped"] else ""))
         for e in r["errors"]:
             report.append(f"- error: {e.splitlines()[0] if e else e}")
         report.append("")
@@ -179,6 +212,7 @@ def publish(course_dir: Path, dry_run: bool = False, only: str | None = None) ->
     drive = Drive()
     root_id, created = _my_drive_folder(drive, target, create=True, dry_run=dry_run)
     uploaded: list[str] = []
+    jobs: list[tuple[Path, list[Path]]] = []
     for d in documents(course_dir, cfg):
         typ: Path = d["typ"]
         if only and only not in str(typ.relative_to(course_dir)):
@@ -186,10 +220,18 @@ def publish(course_dir: Path, dry_run: bool = False, only: str | None = None) ->
         files = [typ.parent / output_name(cfg, typ, m) for m in d["modes"] if m in modes]
         if d["html"] and "student" in modes:
             files.append(typ.parent / output_name(cfg, typ, "student", ".html"))
+        jobs.append((typ.parent, files))
+    for folder in decks(course_dir, cfg):      # slide lectures: the deck's PDF and HTML
+        if only and only not in str(folder.relative_to(course_dir)):
+            continue
+        pdfs = sorted(folder.glob("*.pdf"), key=lambda p: p.stat().st_mtime, reverse=True)
+        if pdfs:
+            jobs.append((folder, [pdfs[0], pdfs[0].with_suffix(".html")]))
+    for folder, files in jobs:
         files = [f for f in files if f.exists()]
         if not files:
             continue
-        sub_name = typ.parent.name
+        sub_name = folder.name
         kids = _children(drive, root_id) if not str(root_id).startswith("dry-run") else {}
         sub_id = kids[sub_name]["id"] if sub_name in kids else drive.ensure_folder(root_id, sub_name, existing=kids, dry_run=dry_run)
         present = _children(drive, sub_id) if sub_name in kids else {}
