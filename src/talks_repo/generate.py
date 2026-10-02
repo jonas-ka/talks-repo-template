@@ -290,7 +290,7 @@ def materialize(asset_ids: list[str]) -> tuple[list[str], list[str]]:
 
 
 def write_main(slug: str, brief: dict[str, Any], blocks: list[Block]) -> Path:
-    tdir = TALKS_DIR / slug
+    tdir = REPO_ROOT / slug if "/" in slug else TALKS_DIR / slug
     tdir.mkdir(parents=True, exist_ok=True)
     # Title-slide contents: one entry per section (in deck order) when blocks declare
     # sections, otherwise one per block title. Long decks stay readable this way.
@@ -325,6 +325,10 @@ def write_main(slug: str, brief: dict[str, Any], blocks: list[Block]) -> Path:
         '  handout: sys.inputs.at("handout", default: "false") == "true",',
         ")",
         f'#set document(title: "{brief.get("title", slug)}", author: "{brief.get("author", "Your Name")}")',
+    ]
+    if (tdir / "alts.yaml").exists():   # equation alt text for plain `$...$` on the slides (talks course build)
+        lines.append('#show: apply-alts.with(yaml("alts.yaml"))')
+    lines += [
         "",
         f"#title-slide(contents: ({contents}{',' if contents else ''}))",
         "",

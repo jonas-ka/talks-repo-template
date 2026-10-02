@@ -29,6 +29,7 @@ courses/**/*.html
 assets/figures/*.svg
 # ... except hand-added figures that exist only as SVG (no PDF original to regenerate from);
 # add a line here for every such figure (`talks catalog` never rebuilds them)
+!assets/figures/plot-us-cpi-u-yoy-2023-2026.svg
 !assets/figures/logo-karthein-lab-sticker.svg
 !assets/figures/plot-oxygen-charge-radii-exp-theo.svg
 !assets/figures/plot-vision-h200-throughput.svg

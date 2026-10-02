@@ -14,8 +14,8 @@ if ! git remote get-url template >/dev/null 2>&1; then
   git remote add template "$TEMPLATE_URL"
 fi
 git fetch -q template "$REF"
-# Shared paths. CLAUDE.md, README.md, course.yaml and your documents stay yours.
-git checkout FETCH_HEAD -- themes src/talks_repo pyproject.toml uv.lock docs/STYLE.md docs/COURSES.md docs/FIGURES_README.md docs/LOGBOOK_GUIDE.md docs/labnotes-template.typ scripts/update_from_template.sh
+# Shared paths. CLAUDE.md, README.md, course.yaml, your documents and themes/logos/ (your real logos) stay yours.
+git checkout FETCH_HEAD -- themes/karthein.typ themes/karthein-poster.typ themes/karthein-notes.typ themes/tokens.typ themes/speak-math.typ themes/palette.yaml themes/karthein.mplstyle themes/README.md src/talks_repo pyproject.toml uv.lock docs/STYLE.md docs/COURSES.md docs/FIGURES_README.md docs/LOGBOOK_GUIDE.md docs/labnotes-template.typ scripts/update_from_template.sh
 git rev-parse --short FETCH_HEAD > .talks-template-version
 uv sync -q
 echo "updated from talks-repo-template $(cat .talks-template-version); review with: git status && git diff --cached"

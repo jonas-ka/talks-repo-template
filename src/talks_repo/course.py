@@ -131,6 +131,15 @@ def build_deck(folder: Path, force: bool = True) -> dict[str, Any]:
 
     rel = str(folder.relative_to(REPO_ROOT))
     try:
+        # equation alt text for the deck's blocks: one `alts.yaml` in the lecture folder, which
+        # the generated main.typ applies (plain `$...$` on slides stays plain)
+        import yaml as _yaml
+
+        brief = _yaml.safe_load((folder / "brief.yaml").read_text(encoding="utf-8")) or {}
+        blocks = gen.load_blocks()
+        chosen, _ = gen.select_blocks(brief, blocks)
+        if chosen:
+            alts_mod.update(chosen[0].path, extra=[b.path for b in chosen[1:]], sidecar=folder / "alts.yaml")
         r = gen.generate(rel, force=force)
     except (FileExistsError, FileNotFoundError, KeyError) as exc:
         return {"file": rel + "/brief.yaml", "deck": True, "errors": [str(exc)], "modes": {}, "html": None, "skipped": False,

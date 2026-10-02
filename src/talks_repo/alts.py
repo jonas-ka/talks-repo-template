@@ -92,12 +92,18 @@ def sidecar_for(typ: Path) -> Path:
     return typ.with_name(typ.stem + ".alts.yaml")
 
 
-def update(typ: Path) -> dict[str, Any]:
-    """Refresh `<stem>.alts.yaml` for one Typst file. Returns counts and the new drafts."""
+def update(typ: Path, extra: list[Path] | None = None, sidecar: Path | None = None) -> dict[str, Any]:
+    """Refresh `<stem>.alts.yaml` for one Typst file (plus `extra` files, e.g. the blocks of a
+    deck, into one `sidecar`). Returns counts and the new drafts."""
     typ = typ if typ.is_absolute() else REPO_ROOT / typ
-    text = typ.read_text(encoding="utf-8")
-    sources = equations_in(text)
-    side = sidecar_for(typ)
+    files = [typ] + [p if p.is_absolute() else REPO_ROOT / p for p in (extra or [])]
+    sources: list[str] = []
+    for f in files:
+        if f.exists():
+            for s in equations_in(f.read_text(encoding="utf-8")):
+                if s not in sources:
+                    sources.append(s)
+    side = sidecar or sidecar_for(typ)
     existing: list[dict[str, Any]] = yaml.safe_load(side.read_text(encoding="utf-8")) or [] if side.exists() else []
     by_src = {str(e.get("src", "")).strip(): e for e in existing}
     new_srcs = [s for s in sources if s not in by_src or not str(by_src[s].get("alt", "")).strip()]
