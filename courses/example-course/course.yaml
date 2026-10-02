@@ -1,0 +1,14 @@
+# Example course for the notes theme (see docs/COURSES.md). A real course is its own
+# repository made from the template, with this file at its root.
+course: PHYS 206
+title: Newtonian Mechanics for Engineering and Science
+semester: Spring 2027
+instructor: Your Name
+documents:
+  - glob: lectures/*/notes.typ
+    modes: [student, lecture]      # student: the posted notes; lecture: handwriting space for the iPad
+    html: true                     # HTML export of the student version (MathML equations) for Canvas
+  - glob: problem-sets/*/ps.typ
+    modes: [student, solutions]
+publish: "1-Areas/Teaching/2027-Spring/PHYS 206"   # under My Drive; `talks course publish`
+publish_modes: [student, lecture]

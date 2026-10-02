@@ -203,7 +203,11 @@ with a provenance header; `status: unreviewed` until the author checks them.
   pdf_file: "..."                 # Stage C: PDF export or null
   archive: archive/2024-03-aps-april   # Stage D, or null
   notes: ""
+  cv: false                       # optional: keep this talk out of the CV (internal meetings); default true
 ```
+
+`talks.yaml` is also the presentations source of the CV repository (`~/Projects/karthein-cv`,
+`cv build` reads it); every talk appended here appears in the CV unless `cv: false`.
 
 ### files.yaml (every deck-like file in the input folders)
 
@@ -403,6 +407,21 @@ Innovation Meeting (`talks/2026-10-tamus-ai-poster`).
   change and check that the poster is one page:
   `typst compile --root . --pdf-standard ua-1 talks/<slug>/poster.typ talks/<slug>/<Name>.pdf`.
 - Add the poster to `talks.yaml` by hand (`type: poster`); the generator does not see it.
+
+## Courses (lecture notes, problem sets)
+
+Courses are separate repositories made from the public template (`docs/COURSES.md`); this
+repository holds the theme and the example (`courses/example-course/`). The notes theme
+`themes/karthein-notes.typ` compiles one source in three modes (`--input mode=student|lecture|
+solutions`): the posted notes, the handwriting copy for the iPad (`work`/`blank` become empty
+space), and problem-set solutions. `talks course build --course <dir>` reads `course.yaml`,
+refreshes equation alt text, compiles every mode (UA-1) plus HTML (MathML), writes
+`report.md`; `talks course publish` copies the results to a `My Drive` path, create-only.
+Equation alt text: plain `$...$` stays in the source; `talks alts <file>` keeps a
+`<stem>.alts.yaml` sidecar (spoken drafts from `themes/speak-math.typ`, `status: draft` until
+reviewed) that the theme applies with `where(body:)` show-set rules. `eq(alt: auto)` in both
+themes takes the spoken form. Briefs may list `blocks:` explicitly (lectures as decks).
+Palette and tokens live in `themes/tokens.typ`, imported by all themes.
 
 ## Accessibility (PDF/UA-1, WCAG 2.1 AA)
 

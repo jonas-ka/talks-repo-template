@@ -109,6 +109,33 @@ def select_blocks(brief: dict[str, Any], blocks: dict[str, Block]) -> tuple[list
     exclude = set(brief.get("exclude") or [])   # block ids never used, `always` ones included
     log: list[str] = []
 
+    # An explicit `blocks:` list (lectures, hand-ordered talks): these blocks in this order,
+    # their `requires` pulled in before them, no topic matching and no budget cut.
+    explicit = brief.get("blocks")
+    if explicit:
+        chosen_list: list[Block] = []
+        missing = [b for b in explicit if b not in blocks]
+        if missing:
+            raise KeyError(f"brief.yaml blocks not found in blocks/: {', '.join(missing)}")
+
+        def pull(b: Block) -> None:
+            for r in b.requires:
+                if r in blocks and blocks[r] not in chosen_list and r not in exclude:
+                    pull(blocks[r])
+            if b not in chosen_list:
+                chosen_list.append(b)
+
+        for bid in explicit:
+            if bid not in exclude:
+                pull(blocks[bid])
+        for b in blocks.values():                 # `always` blocks (acknowledgements) still come along
+            if b.always and b not in chosen_list and b.id not in exclude:
+                chosen_list.append(b)
+        spent = sum(b.minutes for b in chosen_list)
+        log.append(f"explicit block list ({len(explicit)} given, {len(chosen_list)} with requires/always); "
+                   f"{spent:.1f} of {budget:.0f} min" + (" OVER BUDGET" if spent > budget else ""))
+        return chosen_list, log
+
     candidates = []
     for b in blocks.values():
         if b.id in exclude:

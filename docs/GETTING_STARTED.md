@@ -180,6 +180,16 @@ yours, and the work is small if you do it as you go:
 - **Log book.** After every substantial session: *"add a log-book entry."* In a month you
   will want to know why a block says what it says.
 
+## 10b. Teaching a course with the same theme
+
+A course gets **its own repository from the same template** (one per course), with a short
+`CLAUDE.md` about that course. The notes theme (`themes/karthein-notes.typ`) makes accessible
+lecture notes, problem sets and syllabi from one source in three modes (posted notes, a
+handwriting copy for a tablet, solutions); `talks course build` compiles everything from
+`course.yaml`, `talks alts` keeps the equation alt text reviewable, and
+`scripts/update_from_template.sh` pulls theme updates later. The whole workflow is in
+`docs/COURSES.md`; `courses/example-course/` is a lecture and a problem set that build.
+
 ## 11. Habits that keep it working
 
 - One repository, private; the method public through a generated template if you like

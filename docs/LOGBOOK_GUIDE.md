@@ -4,11 +4,11 @@ The log book is a Typst document that records **decisions, findings, numbers, is
 and open items** for `talks-repo`, in chronological order. The repo (CLAUDE.md,
 PROJECT_PLAN.md, README.md) says how things *are*; the log book says *what happened,
 when, and why*. It follows the same template and rules as the FastSims log book in
-`~/Projects/ion-optics-surrogate/notes/` (guide there: `LOGBOOK_GUIDE.md`).
+`~/Projects/fastsims/notes/` (guide there: `LOGBOOK_GUIDE.md`).
 
 **Since 2026-10-01: one `#day` entry per date, with project-grouped `#note`s under it** (append
 only; the contents group each day's notes by project). See "Day entries and notes" in
-`~/Projects/ion-optics-surrogate/notes/LOGBOOK_GUIDE.md`; the template here is a copy of that one.
+`~/Projects/fastsims/notes/LOGBOOK_GUIDE.md`; the template here is a copy of that one.
 
 ## Where it lives
 
@@ -17,7 +17,7 @@ The repository's `notes/` folder, versioned with the code.
 | file | role |
 |---|---|
 | `talks-repo-logbook.typ` | the log book — **edit this** |
-| `labnotes-template.typ` | copy of the shared lab template (layout, colours, building blocks); the original lives in `ion-optics-surrogate/notes/` — don't edit unless asked |
+| `labnotes-template.typ` | copy of the shared lab template (layout, colours, building blocks); the original lives in `fastsims/notes/` — don't edit unless asked |
 | `fig-*.pdf` | figures referenced by the log book (vector where the source is vector) |
 | `talks-repo-logbook.pdf` | the compiled log book, committed alongside the source |
 | `talks-repo-handoff-*.md` | handoff summaries between sessions (optional) |

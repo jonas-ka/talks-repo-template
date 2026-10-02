@@ -39,15 +39,19 @@ PROJECT_PLAN.md    the plan and the rationale of every stage
 RECIPE.md          the narrative: how to set this up with Claude Code, step by step, with prompts
 src/talks_repo/    the pipeline: discover -> archive -> extract -> classify -> catalog -> generate,
                    layout check, html and pptx export, drive sync, template export
-themes/            karthein.typ (slides), karthein-poster.typ (A0 posters), palette.yaml (colours
-                   with measured contrast ratios), karthein.mplstyle (figures), logos/ (placeholders)
+themes/            karthein.typ (slides), karthein-poster.typ (A0 posters), karthein-notes.typ (lecture
+                   notes), tokens.typ (shared palette), speak-math.typ (spoken alt text for equations),
+                   palette.yaml (colours with measured contrast ratios), karthein.mplstyle (figures), logos/
 blocks/            reusable slide modules; two examples
 assets/            catalog.yaml (one entry per figure), figures/, sources/ (scripts + data)
 talks/             one folder per talk: brief.yaml -> main.typ -> PDF/HTML/PPTX + report.md
+courses/           example-course: lecture notes + problem set on the notes theme (karthein-notes.typ),
+                   three modes from one source; real courses are repositories of their own (docs/COURSES.md)
 docs/              GETTING_STARTED.md (set-up to first talk), STYLE.md (the style on one page),
                    LOGBOOK_GUIDE.md + labnotes-template.typ (the lab notebook), FIGURES_README.md
-                   (figure library: folders, versions, style rules)
+                   (figure library: folders, versions, style rules), COURSES.md (teaching with the same theme)
 scripts/           AppleScript exporters for Keynote and PowerPoint; log-book figure tiles
+                   update_from_template.sh (pull theme and pipeline updates into a derived repository)
 ```
 
 ## Adopting it
@@ -78,6 +82,9 @@ uv run talks html <slug>      # HTML slideshow
 uv run talks freeze <slug>    # self-contained talk folder for preservation
 uv run talks sync-drive       # mirror the catalog into a shared figure library (append-only, versioned)
 uv run talks publish <slug>   # copy the deliverables to your talks folder on Drive
+uv run talks alts <file.typ>  # equation alt text sidecar (<stem>.alts.yaml) with spoken drafts
+uv run talks course build --course <dir>    # lecture notes / problem sets: every mode (UA-1) + HTML + report.md
+uv run talks course publish --course <dir>  # the built files into the course's Drive folder (create only)
 uv run talks make-template    # this repository, regenerated from the private one
 ```
 

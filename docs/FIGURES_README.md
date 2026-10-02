@@ -22,7 +22,7 @@ Figures/
 
 Folder and file names: lower case, hyphens, no spaces, starting with the kind:
 `plot-` (data plot), `schematic-` (drawing, diagram), `table-`, `photo-` (photos go to
-`../Photos/`). Example: `plot-vision-h200-throughput`, `schematic-mr-tof-principle`.
+`../Photos/`). Example: `plot-speed-comparisons-legacy-FastSims-Surrogate-M4Pro-H200`, `schematic-mr-tof-principle`.
 
 ## Adding a new figure, step by step
 
@@ -47,12 +47,12 @@ Folder and file names: lower case, hyphens, no spaces, starting with the kind:
    against ions in flight; the H200 curve levels off at 1.6e8, 72 times the laptop").
 
    ```yaml
-   id: plot-vision-h200-throughput
+   id: plot-speed-comparisons-legacy-FastSims-Surrogate-M4Pro-H200
    kind: plot                 # plot | schematic | table | photo
    topic: [genesis, hpc]      # a few keywords for searching
    caption: "Tracker throughput on one H200 against ions in flight; 72x a laptop CPU."
    alt: "Log-log plot of ion-steps per second against ions in flight. The H200 curve ..."
-   source: "ion-optics-surrogate scripts/talk_figures.py, VISION jobs 585537 and 585681"
+   source: "fastsims scripts/talk_figures.py, VISION jobs 585537 and 585681"
    author: "J. Karthein"
    date: 2026-09-24
    supersedes: null           # id of an older figure this one replaces, if any
@@ -69,7 +69,7 @@ Each plot has **one folder**, and its top level always holds the **latest versio
 
 1. Move everything at the top level of the folder, unchanged, into a subfolder named
    **`v<N>_<YYYY-MM-DD>_<name>/`**: the version number and the date that version was made,
-   prepended to the figure's name (`v2_2026-09-30_plot-vision-h200-throughput/`).
+   prepended to the figure's name (`v2_2026-09-30_plot-speed-comparisons-legacy-FastSims-Surrogate-M4Pro-H200/`).
 2. Put the new version in the top level of the folder, under the plot's name.
 3. In the new `figure.yaml`, raise `version` by one and set `supersedes:` to the old version's id
    (`<name>-vN`; version 1 is just `<name>`).
@@ -84,11 +84,11 @@ own. The top level is the normal (slide/paper) version. Version N's poster versi
 other variants, so a version and its variants share a number:
 
 ```
-plot-vision-h200-throughput/
-  plot-vision-h200-throughput.pdf / .svg / .png, code/, data/, figure.yaml   <- v7, the normal version
-  v7_2026-10-01_plot-vision-h200-throughput-poster-version/                 <- v7, poster version
-  v6_2026-10-01_plot-vision-h200-throughput/                                <- v6, normal
-  v6_2026-10-01_plot-vision-h200-throughput-poster-version/                 <- v6, poster
+plot-speed-comparisons-legacy-FastSims-Surrogate-M4Pro-H200/
+  plot-speed-comparisons-legacy-FastSims-Surrogate-M4Pro-H200.pdf / .svg / .png, code/, data/, figure.yaml   <- v7, the normal version
+  v7_2026-10-01_plot-speed-comparisons-legacy-FastSims-Surrogate-M4Pro-H200-poster-version/                 <- v7, poster version
+  v6_2026-10-01_plot-speed-comparisons-legacy-FastSims-Surrogate-M4Pro-H200/                                <- v6, normal
+  v6_2026-10-01_plot-speed-comparisons-legacy-FastSims-Surrogate-M4Pro-H200-poster-version/                 <- v6, poster
   ...
 ```
 

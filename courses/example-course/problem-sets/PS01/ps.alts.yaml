@@ -1,0 +1,62 @@
+# Equation alt text for ps.typ (talks alts). Edit `alt`, set `status: reviewed`;
+# `draft` = spoken form from themes/speak-math.typ, `stale` = no longer in the file.
+- src: g = 9.8 "m/s"^2
+  alt: g equals 9.8 m/s squared
+  status: draft
+- src: (0 "s", 2 "m")
+  alt: open parenthesis 0 s , 2 m close parenthesis
+  status: draft
+- src: (4 "s", -6 "m")
+  alt: open parenthesis 4 s , minus 6 m close parenthesis
+  status: draft
+- src: v = (-6 "m" - 2 "m") / (4 "s") = -2 "m/s".
+  alt: v equals the fraction minus 6 m minus 2 m over 4 s, end fraction, equals minus 2 m/s .
+  status: draft
+- src: Delta x = -8 "m"
+  alt: capital delta x equals minus 8 m
+  status: draft
+- src: 30 "m/s"
+  alt: 30 m/s
+  status: draft
+- src: 6 "m/s"^2
+  alt: 6 m/s squared
+  status: draft
+- src: v = 0
+  alt: v equals 0
+  status: draft
+- src: x - x_0 = v_0^2 / (2 a) = (30 "m/s")^2 / (2 times 6 "m/s"^2) = 75 "m", quad t = v_0 / a = 5 "s".
+  alt: x minus x nought equals the fraction v nought squared over 2 a, end fraction, equals the fraction open parenthesis 30 m/s close parenthesis squared over 2 times 6 m/s squared, end fraction, equals 75 m , t equals the fraction v nought over a, end fraction, equals 5 s .
+  status: draft
+- src: 20 "m/s"
+  alt: 20 m/s
+  status: draft
+- src: 15 "m/s"
+  alt: 15 m/s
+  status: draft
+- src: 1.0 "m/s"^2
+  alt: 1.0 m/s squared
+  status: draft
+- src: v_0^2 \/ (2 a)
+  alt: v nought squared over open parenthesis 2 a close parenthesis
+  status: draft
+- src: 200 "m"
+  alt: 200 m
+  status: draft
+- src: 112.5 "m"
+  alt: 112.5 m
+  status: draft
+- src: v = (-6 "m" - 2 "m") / (4 "s") = -2 "m/s"
+  alt: v equals the fraction minus 6 m minus 2 m over 4 s, end fraction, equals minus 2 m/s
+  status: stale
+- src: x - x_0 = v_0^2 / (2 a) = (30 "m/s")^2 / (2 times 6 "m/s"^2) = 75 "m"
+  alt: x minus x nought equals the fraction v nought squared over 2 a, end fraction, equals the fraction open parenthesis 30 m/s close parenthesis squared over 2 times 6 m/s squared, end fraction, equals 75 m
+  status: stale
+- src: t = v_0 / a = 5 "s"
+  alt: t equals the fraction v nought over a, end fraction, equals 5 s
+  status: stale
+- src: 20^2 / 2 = 200 "m"
+  alt: the fraction 20 squared over 2, end fraction, equals 200 m
+  status: stale
+- src: 15^2 / 2 = 112.5 "m"
+  alt: the fraction 15 squared over 2, end fraction, equals 112.5 m
+  status: stale

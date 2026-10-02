@@ -56,6 +56,18 @@ logos at one visible height, centred), rows of white cards with aligned top and 
 the page filled so that the bottom margin comes out near the 28 mm side margins; the
 occasion, acknowledgements and contact in the footer.
 
+## Lecture notes and course documents
+
+`themes/karthein-notes.typ`: US Letter, STIX Two Text 11 pt (12 pt with wider leading in the
+*lecture* copy for the iPad), 1 in margins, the course and lecture in a muted running header,
+"Page x of y" in the footer, headings in brand maroon (15 / 12.5 / 11.5 pt), numbered
+"1.1". Tinted panels for definitions (blue), key ideas and check-yourself questions (yellow),
+examples and solutions (green), "Don't panic" warnings (red), a grey summary band. Figures
+are numbered with a 10 pt muted caption; links teal and underlined. Three modes from one
+source: `student` (posted), `lecture` (`work`/`blank` become empty space to write in),
+`solutions`. Every equation has alt text: `eq(alt: ...)` for key equations, the `.alts.yaml`
+sidecar (`talks alts`) for plain `$...$`; the HTML export carries MathML.
+
 ## Figures
 
 `plt.style.use("themes/karthein.mplstyle")` gives: STIX fonts, the four lab colours in order

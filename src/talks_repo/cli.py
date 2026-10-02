@@ -591,5 +591,63 @@ def _write_review_sheet(
     return path
 
 
+@app.command("alts")
+def alts_cmd(
+    files: Annotated[list[Path], typer.Argument(help="Typst files whose equations get a `<stem>.alts.yaml` sidecar.")],
+) -> None:
+    """Collect a document's equations into <stem>.alts.yaml with spoken drafts (reviewed entries kept)."""
+    from talks_repo import alts
+
+    for f in files:
+        r = alts.update(f)
+        c = r["counts"]
+        typer.echo(f"{r['file']}: {c['equations']} equations -> {r['sidecar']}; reviewed {c['reviewed']}, draft {c['draft']}, "
+                   f"new {c['new']}, stale {c['stale']}, missing {c['empty']}")
+        for src, alt in r["drafts"]:
+            typer.echo(f"  draft: ${src}$  ->  {alt}")
+
+
+course_app = typer.Typer(help="Course documents (lecture notes, problem sets) on the notes theme.", no_args_is_help=True)
+app.add_typer(course_app, name="course")
+
+
+@course_app.command("build")
+def course_build_cmd(
+    course: Annotated[Path, typer.Option(help="Course folder with course.yaml.")] = Path("."),
+    only: Annotated[str | None, typer.Option(help="Build only documents whose path contains this.")] = None,
+    force: Annotated[bool, typer.Option(help="Rebuild documents whose outputs are up to date.")] = False,
+) -> None:
+    """Refresh equation alt text, compile every document in every mode (UA-1) and the HTML, write report.md."""
+    from talks_repo import course as course_mod
+
+    r = course_mod.build(course, only=only, force=force)
+    for res in r["results"]:
+        state = "FAILED" if res["errors"] else ("up to date" if res["skipped"] else "built")
+        pages = ", ".join(f"{m} {i['pages']}p" for m, i in res["modes"].items())
+        a = res["alts"]
+        typer.echo(f"{res['file']}: {state}; {pages}{'; html' if res['html'] else ''}; alt text draft {a['draft']}/{a['equations']}"
+                   + (f", missing {a['empty']}" if a["empty"] else ""))
+        for e in res["errors"]:
+            typer.echo("  " + e.replace("\n", "\n  ")[:800])
+    typer.echo(f"Report: {r['report']}")
+
+
+@course_app.command("publish")
+def course_publish_cmd(
+    course: Annotated[Path, typer.Option(help="Course folder with course.yaml.")] = Path("."),
+    only: Annotated[str | None, typer.Option(help="Publish only documents whose path contains this.")] = None,
+    dry_run: Annotated[bool, typer.Option(help="Say what would be created; write nothing.")] = False,
+) -> None:
+    """Copy the built PDFs (publish_modes) and HTML into the course's Drive folder (create only)."""
+    from talks_repo import course as course_mod
+
+    r = course_mod.publish(course, dry_run=dry_run, only=only)
+    typer.echo(f"{'DRY RUN: ' if r['dry_run'] else ''}{r['path']}" + (f" (new folders: {', '.join(r['created_folders'])})" if r["created_folders"] else ""))
+    for u in r["uploaded"]:
+        typer.echo(f"  {u}")
+    if not r["uploaded"]:
+        typer.echo("  nothing to upload; run `talks course build` first")
+
+
 def main() -> None:
     app()
