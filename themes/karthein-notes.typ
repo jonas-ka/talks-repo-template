@@ -191,7 +191,7 @@
   block(below: 14pt, {
     text(size: 10.5pt, fill: muted, weight: "bold")[#course · #institution]
     linebreak()
-    heading(level: 1, numbering: none, outlined: false, text(size: 20pt, fill: brand, [#kind #if number != none [#number]: #title]))
+    heading(level: 1, numbering: none, outlined: false, text(size: 20pt, fill: brand, heading-line))
     v(2pt)
     text(size: 10.5pt, fill: muted)[#author#if date != none [ · #date]#if is-lecture [ · lecture copy]#if is-solutions [ · *solutions*]]
     v(6pt); line(length: 100%, stroke: 1pt + brand)
