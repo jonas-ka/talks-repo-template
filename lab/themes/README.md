@@ -9,7 +9,7 @@ Typst/Touying implementation: `karthein.typ`. Logos: `logos/`.
 - 16:9 white slides. Text set in **STIX Two Text**: bold titles, regular body, italic for
   emphasis and for the date/event line. Math in STIX Two Math.
 - **Content slide:** bold title top-left (18 pt), <Your University> logo top-right, thin light
-  rule under the title. Footer: light grey band with `you@example.edu` bold on the
+  rule under the title. Footer: light grey band with the e-mail address bold on the
   left, the slide's citation centred in teal, the page number bold on the right, and
   sponsor logos (DOE, Genesis Mission) right of centre when relevant.
 - **Title slide:** light grey band across the top half with the title in bold, the

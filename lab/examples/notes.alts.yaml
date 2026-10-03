@@ -1,0 +1,62 @@
+# Equation alt text for notes.typ (talks alts). Edit `alt`, set `status: reviewed`;
+# `draft` = spoken form from themes/speak-math.typ, `stale` = no longer in the file.
+- src: x(t)
+  alt: x of t
+  status: draft
+- src: x
+  alt: x
+  status: draft
+- src: Delta x = x_2 - x_1
+  alt: delta x equals x 2 minus x 1
+  status: draft
+- src: a
+  alt: a
+  status: draft
+- src: t
+  alt: t
+  status: draft
+- src: v^2 = v_0^2 + 2 a (x - x_0)
+  alt: v squared equals v nought squared plus 2 a open parenthesis x minus x nought close parenthesis
+  status: draft
+- src: v_0 = 12 "m/s"
+  alt: v nought equals 12 m/s
+  status: draft
+- src: g = 9.8 "m/s"^2
+  alt: g equals 9.8 m/s squared
+  status: draft
+- src: v = 0
+  alt: v equals 0
+  status: draft
+- src: v^2 = v_0^2 - 2 g h
+  alt: v squared equals v nought squared minus 2 g h
+  status: draft
+- src: h = v_0^2 / (2 g) = (12 "m/s")^2 / (2 times 9.8 "m/s"^2) = 7.3 "m".
+  alt: h equals the fraction v nought squared over 2 g, end fraction, equals the fraction open parenthesis 12 m/s close parenthesis squared over 2 times 9.8 m/s squared, end fraction, equals 7.3 m .
+  status: draft
+- src: t_"up" = v_0 \/ g = 1.22 "s"
+  alt: t sub up equals v nought over g equals 1.22 s
+  status: draft
+- src: 2 t_"up" = 2.4 "s"
+  alt: 2 t sub up equals 2.4 s
+  status: draft
+- src: v
+  alt: v
+  status: draft
+- src: -20 "m/s"
+  alt: minus 20 m/s
+  status: draft
+- src: -10 "m/s"
+  alt: minus 10 m/s
+  status: draft
+- src: a = (Delta v)/(Delta t) = (10 "m/s") / (2 "s") = +5 "m/s"^2
+  alt: a equals the fraction capital delta v over capital delta t, end fraction, equals the fraction 10 m/s over 2 s, end fraction, equals plus 5 m/s squared
+  status: draft
+- src: v = v_0 + a t
+  alt: v equals v nought plus a t
+  status: draft
+- src: x = x_0 + v_0 t + 1/2 a t^2
+  alt: x equals x nought plus v nought t plus one half a t squared
+  status: draft
+- src: v^2 = v_0^2 + 2 a Delta x
+  alt: v squared equals v nought squared plus 2 a capital delta x
+  status: draft

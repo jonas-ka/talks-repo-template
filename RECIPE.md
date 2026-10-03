@@ -65,7 +65,7 @@ labels swapped — caught because the author's own slide labelled them).
 ## 3. The theme
 
 Derived from the author's three most recent decks, not invented: fonts (STIX Two Text /
-Math), the lab palette with measured WCAG contrast ratios (`themes/palette.yaml`), the
+Math), the lab palette with measured WCAG contrast ratios (`lab/themes/palette.yaml`), the
 style-guide tokens (panel tints, line colours, radii, shadows), slide header and footer,
 sponsor logos only where a block declares them, slide titles in Title Case, one figure per
 slide, captions one line at 11 pt. Everything compiles with `--pdf-standard ua-1`: a failed
@@ -118,8 +118,8 @@ Two side effects turned out to be the most valuable parts for the group.
 - **The figure library** on the shared drive: one folder per figure with PDF, SVG, PNG
   (300 dpi), `code/`, `data/` and `figure.yaml`; the latest version at the top level, earlier
   versions in dated subfolders, variants beside them; style rules (lab colours, full box,
-  black bold labels, legend inside, text never on data). `docs/FIGURES_README.md`.
-- **The log book** (`docs/LOGBOOK_GUIDE.md`, `docs/labnotes-template.typ`): one Typst file,
+  black bold labels, legend inside, text never on data). `lab/docs/FIGURES_README.md`.
+- **The log book** (`lab/docs/LOGBOOK_GUIDE.md`, `lab/notes/labnotes-template.typ`): one Typst file,
   one entry per day with notes per project, decision / finding / issue / todo boxes, the
   numbers, the reasons, the dead ends — the material of a methods chapter that lives
   nowhere else. Prompt: *"Write a lab notebook for this repo; backfill it from our

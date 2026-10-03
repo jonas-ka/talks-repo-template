@@ -117,7 +117,7 @@ Have these ready and point Claude Code at them (paths, or paste):
 
 Rule of thumb: if you would tell a new student something on their first day, it belongs in
 `CLAUDE.md`. If it is something that *happened* (a decision, a number, a dead end), it
-belongs in the log book (`docs/LOGBOOK_GUIDE.md`) — ask Claude Code to open one in the
+belongs in the log book (`lab/docs/LOGBOOK_GUIDE.md`) — ask Claude Code to open one in the
 first week: *"write a lab notebook for this repo and backfill it from our conversation and
 the git log."*
 
@@ -188,7 +188,7 @@ lecture notes, problem sets and syllabi from one source in three modes (posted n
 handwriting copy for a tablet, solutions); `talks course build` compiles everything from
 `course.yaml`, `talks alts` keeps the equation alt text reviewable, and
 `scripts/update_from_template.sh` pulls theme updates later. The whole workflow is in
-`docs/COURSES.md`; `courses/example-course/` is a lecture and a problem set that build.
+`lab/docs/COURSES.md`; `courses/example-course/` is a lecture and a problem set that build.
 
 ## 11. Habits that keep it working
 

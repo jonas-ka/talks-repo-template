@@ -32,7 +32,9 @@ Read that file before starting any pipeline stage.
   caption: those are written by the author; the repo catalog keeps ours. The lab uses these
   folders for talks, posters and papers, as they are or modified from the code and data.
   `Figures/README.md` tells lab members how to add a figure by hand. Its canonical source is
-  `docs/FIGURES_README.md` (the author edits it there; `docs/FIGURES_README.md` is the copy shipped here). Since 2026-10-01 it also fixes the **figure style rules** (lab four colours, black
+  `lab/docs/FIGURES_README.md` in the `lab-templates` repository since 2026-10-02 (before:
+  `fastsims/lab/docs/FIGURES_README.md`; the copies in fastsims and ion-optics-surrogate are to be
+  replaced by the subtree). Since 2026-10-01 it also fixes the **figure style rules** (lab four colours, black
   bold axis labels, full box, legend inside without frame or labels at the curves, black
   annotation text) and **versioning**: the top level of a figure folder holds the latest version,
   earlier ones move into `v<N>_<YYYY-MM-DD>_<name>/`, variants into `…-poster-version/` in the
@@ -69,7 +71,7 @@ Read that file before starting any pipeline stage.
 
 - The log book in `notes/` records what happened, when and why (decisions, numbers,
   open items); append an entry after substantial work and compile it
-  (`notes/LOGBOOK_GUIDE.md`).
+  (`lab/docs/LOGBOOK_GUIDE.md`).
 
 - Answer questions before making changes. Ask permission before editing or deleting.
 - Explain in plain language first; define terms as they appear.
@@ -361,8 +363,8 @@ timing, asset problems, and `updates.md` entries newer than the last talk on the
   until then, do not invent them).
 - Prefer the newest version of a figure. Never use a superseded asset.
 - Plot palettes are colour-blind-safe; the approved palette and its measured contrast
-  ratios are recorded in `themes/palette.yaml`; `themes/karthein.mplstyle` applies the figure
-  style in matplotlib; `docs/STYLE.md` is the one-page summary of the whole style. Fonts: STIX
+  ratios are recorded in `lab/themes/palette.yaml`; `lab/themes/karthein.mplstyle` applies the figure
+  style in matplotlib; `lab/docs/STYLE.md` is the one-page summary of the whole style. Fonts: STIX
   Two Text and STIX Two Math.
 - Theme: `themes/karthein.typ` (Touying). Slide titles via `==` or `#slide(title: ...)`;
   figures via `#fig(path, alt: ...)`, equations via `#eq(alt: ...)[$...$]`; compile with
@@ -410,7 +412,7 @@ Innovation Meeting (`talks/2026-10-tamus-ai-poster`).
 
 ## Courses (lecture notes, problem sets)
 
-Courses are separate repositories made from the public template (`docs/COURSES.md`); this
+Courses are separate repositories made from the public template (`lab/docs/COURSES.md`); this
 repository holds the theme and the example (`courses/example-course/`). The notes theme
 `themes/karthein-notes.typ` compiles one source in three modes (`--input mode=student|lecture|
 solutions`): the posted notes, the handwriting copy for the iPad (`work`/`blank` become empty
@@ -457,3 +459,13 @@ The accessibility spike in `spikes/accessibility/` runs before any theme work.
 6. Report: block list, timing estimate, updates proposed, any superseded asset that was
    requested, any asset missing `alt`, layout flags.
 7. Append the new talk to `talks.yaml` so the spine stays complete.
+
+## Templates (lab/)
+
+Themes, the lab-notebook template, the matplotlib style and the guides live in `lab/`, a git
+subtree of the public `jonas-ka/lab-templates`, pinned to the tag in `lab/VERSION`. The files at
+the old paths (`themes/*.typ`, `notes/labnotes-template.typ`, `theme/cv-theme.typ`) are one-line
+shims and are never edited. A theme fix is made in `lab/` and sent upstream with
+`scripts/lab-templates.sh push`; updates come in with `scripts/lab-templates.sh pull <tag>` after
+reading `lab/CHANGELOG.md`; never silently. Logos stay in `themes/logos/`. Log books compile from
+the repository root: `typst compile --root . notes/<name>-logbook.typ`.

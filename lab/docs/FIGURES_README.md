@@ -115,6 +115,9 @@ plot-speed-comparisons-legacy-FastSims-Surrogate-M4Pro-H200/
 - **Lines that connect panels** are drawn once across the figure (`matplotlib.patches.ConnectionPatch`),
   not as separate pieces per panel.
 - STIX fonts (`STIX Two Text` / `STIXGeneral`, mathtext `stix`), as in the template notebook.
+  **Call `fastsims.plotting.lab_style(size)` at the top of every figure script** -- it sets the font family,
+  the black frame and text, bold labels, frameless legends and editable text in PDF/SVG in one place; setting
+  size and weight alone falls back to DejaVu Sans (log book 2026-10-02).
 
 ## Rules of the folder
 

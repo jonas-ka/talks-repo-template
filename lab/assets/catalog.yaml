@@ -1,0 +1,27 @@
+# Catalog of figures and equations (one entry each). This template ships one public
+# example figure; `talks catalog` fills the rest from your archived decks.
+- id: plot-us-cpi-u-yoy-2023-2026
+  image_id: null
+  file: figures/plot-us-cpi-u-yoy-2023-2026.pdf
+  svg: figures/plot-us-cpi-u-yoy-2023-2026.svg
+  kind: plot
+  topic:
+  - example
+  - economics
+  level:
+  - general
+  - nuclear
+  - AMO
+  - expert
+  caption: US consumer prices (CPI-U, all items), 12-month percent change by month, September 2023 to August 2026, against the proposed 3 % postdoc raise; no index was published for October 2025 (lapse in appropriations), so that month and its 12-month value are left blank.
+  alt: Line plot of the 12-month change of US consumer prices from late 2023 to August 2026. It falls from 3.7 percent to about 2.4 percent in 2024 and 2025, rises to 4.3 percent in May 2026 and ends at 3.4 percent in August 2026. A dashed red line marks the proposed 3 percent raise; one point in October 2025 is missing because no index was published.
+  source: U.S. Bureau of Labor Statistics, CPI-U CUUR0000SA0, public API v2, retrieved 2026-10-01; assets/sources/cpi-u-yoy/code/plot_cpi.py
+  source_dir: sources/cpi-u-yoy
+  version: 1
+  supersedes: null
+  notes: 'example figure of the template: public data (U.S. Bureau of Labor Statistics), script and data in assets/sources/cpi-u-yoy/'
+  first_used: 2026-10
+  last_used: 2026-10
+  n_uses: 0
+  origin: null
+  vector: true

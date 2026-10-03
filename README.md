@@ -46,7 +46,7 @@ blocks/            reusable slide modules; two examples
 assets/            catalog.yaml (one entry per figure), figures/, sources/ (scripts + data)
 talks/             one folder per talk: brief.yaml -> main.typ -> PDF/HTML/PPTX + report.md
 courses/           example-course: lecture notes + problem set on the notes theme (karthein-notes.typ),
-                   three modes from one source; real courses are repositories of their own (docs/COURSES.md)
+                   three modes from one source; real courses are repositories of their own (lab/docs/COURSES.md)
 docs/              GETTING_STARTED.md (set-up to first talk), STYLE.md (the style on one page),
                    LOGBOOK_GUIDE.md + labnotes-template.typ (the lab notebook), FIGURES_README.md
                    (figure library: folders, versions, style rules), COURSES.md (teaching with the same theme)
@@ -62,7 +62,7 @@ scripts/           AppleScript exporters for Keynote and PowerPoint; log-book fi
    Google Slides), then run the stages in `README`'s order; every stage writes a review sheet
    into `review/` and is resumable.
 3. Keep `CLAUDE.md` honest: when Claude Code learns something about your setup, it goes in
-   there; when something *happened*, it goes in the log book (`docs/LOGBOOK_GUIDE.md`).
+   there; when something *happened*, it goes in the log book (`lab/docs/LOGBOOK_GUIDE.md`).
 
 ## Pipeline commands
 
