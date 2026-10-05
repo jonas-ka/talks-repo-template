@@ -11,6 +11,18 @@ Reproducible research-talk slides for <Your Name> (nuclear/AMO physics, <Your Un
 library, seeded by ingesting 60+ past decks. Full plan and rationale: `PROJECT_PLAN.md`.
 Read that file before starting any pipeline stage.
 
+## Start here
+
+The ingestion stages (A–G) are finished; a session now usually makes **one talk**, and each
+talk gets its own chat. `/new-talk <slug or description>` runs the whole routine
+(`.claude/commands/new-talk.md`): brief → `uv run talks generate <slug>` → layout pass on every
+page render → report → `talks publish` only when the author says so → log-book entry → commit. The
+sections that matter for that: Hard rules, Working style, the `brief.yaml` and block-header
+schemas, Slide style (or Posters), Generation workflow, Templates (lab/). Courses and the CV
+have their own repositories (`phys206-mechanics`, `phys698-nucl-exp`, `karthein-cv`); themes
+live in `lab/` (`jonas-ka/lab-templates`). Pipeline work (new stages, exporters, the template)
+belongs in a chat of its own, not in a talk's.
+
 ## Hard rules
 
 - **Input folders are read-only.** Never write, move, rename, or delete inside:
