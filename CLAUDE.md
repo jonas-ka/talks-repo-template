@@ -45,7 +45,7 @@ belongs in a chat of its own, not in a talk's.
   folders for talks, posters and papers, as they are or modified from the code and data.
   `Figures/README.md` tells lab members how to add a figure by hand. Its canonical source is
   `lab/docs/FIGURES_README.md` in the `lab-templates` repository since 2026-10-02 (before:
-  `fastsims/lab/docs/FIGURES_README.md`; the copies in fastsims and ion-optics-surrogate are to be
+  `docs/FIGURES_README.md`; the copy in fastsims is to be
   replaced by the subtree). Since 2026-10-01 it also fixes the **figure style rules** (lab four colours, black
   bold axis labels, full box, legend inside without frame or labels at the curves, black
   annotation text) and **versioning**: the top level of a figure folder holds the latest version,
