@@ -1,0 +1,65 @@
+# Equation alt text for exam.typ (talks alts). Edit `alt`, set `status: reviewed`;
+# `draft` = spoken form from themes/speak-math.typ, `stale` = no longer in the file.
+- src: v = (dif x)/(dif t)
+  alt: v equals d x over d t
+  status: draft
+- src: a = (dif v)/(dif t)
+  alt: a equals d v over d t
+  status: draft
+- src: a
+  alt: a
+  status: draft
+- src: x(t) = x(0) + v(0) t + 1/2 a t^2
+  alt: x of t equals x of 0 plus v of 0 t plus one half a t squared
+  status: draft
+- src: S = pi r^2
+  alt: S equals pi r squared
+  status: draft
+- src: arrow(F) = m arrow(a)
+  alt: vector F equals m vector a
+  status: draft
+- src: '|arrow(f)| <= mu |arrow(N)|'
+  alt: the magnitude of f, end magnitude, is less than or equal to mu the magnitude of N, end magnitude
+  status: draft
+- src: v(0)
+  alt: v of 0
+  status: draft
+- src: T
+  alt: T
+  status: draft
+- src: v(t) = v(0) - g t
+  alt: v of t equals v of 0 minus g t
+  status: draft
+- src: v(T) = 0
+  alt: v of T equals 0
+  status: draft
+- src: => T = v(0) \/ g
+  alt: implies T equals v of 0 over g
+  status: draft
+- src: H
+  alt: H
+  status: draft
+- src: H = v(0) T - 1/2 g T^2 = v(0)^2 \/ (2 g)
+  alt: H equals v of 0 T minus one half g T squared equals v of 0 squared over open parenthesis 2 g close parenthesis
+  status: draft
+- src: m
+  alt: m
+  status: draft
+- src: mu
+  alt: mu
+  status: draft
+- src: P
+  alt: P
+  status: draft
+- src: m g
+  alt: m g
+  status: draft
+- src: '|arrow(N)|'
+  alt: the magnitude of N, end magnitude
+  status: draft
+- src: '|arrow(N)| = m g'
+  alt: the magnitude of N, end magnitude, equals m g
+  status: draft
+- src: P <= mu |arrow(N)| = mu m g
+  alt: P is less than or equal to mu the magnitude of N, end magnitude, equals mu m g
+  status: draft

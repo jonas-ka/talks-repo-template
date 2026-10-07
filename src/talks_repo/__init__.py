@@ -11,6 +11,22 @@ REVIEW_DIR = REPO_ROOT / "review"
 WORK_DIR = REPO_ROOT / "work"
 
 
+def git_rev() -> str | None:
+    """The revision a document is built from, for the title slide or the notes' first page
+    (`--input rev=`): the short commit, with `-dirty` when tracked files have uncommitted
+    changes (`git describe --always --dirty`). None outside a git checkout."""
+    import subprocess
+
+    r = subprocess.run(["git", "describe", "--always", "--dirty", "--abbrev=7"], cwd=REPO_ROOT, capture_output=True, text=True)
+    return r.stdout.strip() or None if r.returncode == 0 else None
+
+
+def rev_inputs() -> list[str]:
+    """`["--input", "rev=<rev>"]` for a typst compile, or [] when there is no revision."""
+    rev = git_rev()
+    return ["--input", f"rev={rev}"] if rev else []
+
+
 @dataclass(frozen=True)
 class InputRoot:
     """A read-only input folder. Lower priority number = more important."""

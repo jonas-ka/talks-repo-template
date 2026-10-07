@@ -48,6 +48,15 @@ hairline rule; footer: hairline rule, e-mail, citation in teal (`#007682` at bod
 sponsor logos only where a block asks for them, page number. Tagged PDF (UA-1) always;
 every figure and equation has alt text.
 
+Running text (paragraphs, bullets, column text) is **justified**; letter spacing takes part of
+the stretch (`justification-limits`: word spacing 67–130 %, tracking −0.01 to +0.02 em), so
+narrow columns get no wide gaps. Explicitly aligned content (centred captions, diagram labels)
+and tables are not justified. **Text budget:** a slide with more than 120 words of body text
+(type of 11.5 pt and up; captions and figure labels do not count) is text-heavy and loses at
+least 10 % of its words in the layout pass; `talks layout` counts them and names the target.
+The **title slide** says what built the deck, small at the bottom right: the template version
+(`VERSION`) and the git revision of the repository it was compiled from (`--input rev=`).
+
 ## Posters
 
 A grey header band (title, subtitle in brand colour, authors, collaborators in italics,

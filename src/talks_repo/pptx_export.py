@@ -24,6 +24,11 @@ How the hybrid mode reads the PDF (PyMuPDF):
   recovered from the glyph advances: of two same-named subsets, the one whose shared
   characters are wider is the bold one (`_classify_fonts`). Each subset is renamed in
   memory (`Family-Bold`, `Family-Italic`, ...) so the text extraction can tell them apart.
+* Text boxes are 10 % wider than their line, extended to the right, with the text
+  left-aligned (the author, 2026-10-07): Google Slides ignores "do not wrap" and lays text out with
+  slightly different metrics, so a box exactly as wide as the PDF line pushed its last word
+  onto a second line after import. The extra width is empty space to the right; the text
+  starts where it did. (`BOX_EXTRA`)
 * Text boxes get zero insets and no wrap; their top is the baseline minus the font's
   ascent (hhea = typo metrics for STIX Two Text). Checked against PowerPoint for Mac on
   2026-09-29: 61 of 62 lines within 1.5 pt horizontally, baselines a uniform 1.8 pt lower
@@ -50,7 +55,7 @@ import pymupdf
 from fontTools.ttLib import TTFont
 from pptx import Presentation
 from pptx.dml.color import RGBColor
-from pptx.enum.text import MSO_ANCHOR, MSO_AUTO_SIZE
+from pptx.enum.text import MSO_ANCHOR, MSO_AUTO_SIZE, PP_ALIGN
 from pptx.util import Emu, Pt
 
 from talks_repo import REPO_ROOT
@@ -352,16 +357,21 @@ def background_png(doc: pymupdf.Document, pno: int, text_rects: list[pymupdf.Rec
 
 
 # ---------------------------------------------------------------- pptx
+BOX_EXTRA = 0.10   # text boxes this much wider than their line, to the right (Google Slides re-wraps otherwise)
+
+
 def _add_textbox(slide, box: TextBox, baseline_shift: float = 0.0) -> None:
     top = box.baseline - box.ascent + baseline_shift
     height = box.ascent + box.descent
-    shape = slide.shapes.add_textbox(emu(box.x0), emu(top), emu(box.x1 - box.x0 + 2), emu(height))
+    width = (box.x1 - box.x0 + 2) * (1 + BOX_EXTRA)
+    shape = slide.shapes.add_textbox(emu(box.x0), emu(top), emu(width), emu(height))
     tf = shape.text_frame
     tf.word_wrap = False
     tf.auto_size = MSO_AUTO_SIZE.NONE
     tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
     tf.vertical_anchor = MSO_ANCHOR.TOP
     p = tf.paragraphs[0]
+    p.alignment = PP_ALIGN.LEFT        # explicit: the extra width stays on the right
     p.line_spacing = 1.0
     for run in box.runs:
         r = p.add_run()

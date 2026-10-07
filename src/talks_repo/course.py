@@ -38,7 +38,7 @@ from typing import Any
 
 import yaml
 
-from talks_repo import REPO_ROOT
+from talks_repo import REPO_ROOT, rev_inputs
 from talks_repo import alts as alts_mod
 
 THEME_FILES = ("themes/karthein-notes.typ", "themes/speak-math.typ", "themes/tokens.typ", "assets/catalog.yaml")
@@ -103,7 +103,7 @@ def build_document(cfg: dict[str, Any], doc: dict[str, Any], force: bool = False
         return res
     for m in doc["modes"]:
         out = typ.parent / output_name(cfg, typ, m)
-        r = subprocess.run(["typst", "compile", "--root", str(REPO_ROOT), "--pdf-standard", "ua-1", "--input", f"mode={m}", str(typ), str(out)],
+        r = subprocess.run(["typst", "compile", "--root", str(REPO_ROOT), "--pdf-standard", "ua-1", *rev_inputs(), "--input", f"mode={m}", str(typ), str(out)],
                            capture_output=True, text=True)
         if r.returncode != 0:
             res["errors"].append(f"{m}: " + r.stderr.strip()[:1500])
@@ -111,7 +111,7 @@ def build_document(cfg: dict[str, Any], doc: dict[str, Any], force: bool = False
         res["modes"][m] = {"pdf": out.name, "pages": _pages(out)}
     if doc["html"]:
         out = typ.parent / output_name(cfg, typ, "student", ".html")
-        r = subprocess.run(["typst", "compile", "--root", str(REPO_ROOT), "--features", "html", "--format", "html", "--input", "mode=student", str(typ), str(out)],
+        r = subprocess.run(["typst", "compile", "--root", str(REPO_ROOT), "--features", "html", "--format", "html", *rev_inputs(), "--input", "mode=student", str(typ), str(out)],
                            capture_output=True, text=True)
         if r.returncode != 0:
             res["errors"].append("html: " + r.stderr.strip()[:1500])

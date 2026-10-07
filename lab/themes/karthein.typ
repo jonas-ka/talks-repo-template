@@ -34,6 +34,17 @@
 #let sponsor-state = state("sponsors", false)
 #let sponsors(on) = sponsor-state.update(on)
 
+// What built this deck, printed small on the title slide (the author, 2026-10-07): the version of the
+// templates (lab-templates `VERSION`; in a consumer this file sits in lab/themes/, so
+// `../VERSION` is lab/VERSION) and the git revision of the repository the deck was compiled
+// from, passed as `--input rev=<git describe --always --dirty>` by `talks generate`.
+#let template-version = read("../VERSION").trim()
+#let build-rev = sys.inputs.at("rev", default: none)
+#let build-line = {
+  [Template #template-version]
+  if build-rev != none [ · git #build-rev]
+}
+
 #let logos = (
   tamu: "/themes/logos/tamu-mark.png",
   cyclotron: "/themes/logos/cyclotron-institute.png",
@@ -252,6 +263,7 @@
       })
     }
   }
+  let body = body + place(bottom + right, dx: -18pt, dy: -12pt, text(size: 9.5pt, fill: muted, build-line))
   let self = utils.merge-dicts(self, config-page(header: none, footer: none, margin: 0pt))
   touying-slide(self: self, body)
 })
@@ -262,6 +274,14 @@
   set text(font: ("STIX Two Text", "Helvetica Neue"), size: 14pt, fill: ink, lang: "en")
   show math.equation: set text(font: "STIX Two Math")
   set par(leading: 0.6em)
+  // Running text is justified (the author, 2026-10-07): a paragraph or bullet that wraps fills the
+  // column; one-line text is unaffected. Explicitly aligned content (centred captions,
+  // diagram labels) and tables stay as they are set.
+  set par(justify: true)
+  // Letter spacing takes part of the stretch, so narrow columns get no wide word gaps.
+  set par(justification-limits: (spacing: (min: 100% * 2 / 3, max: 130%), tracking: (min: -0.01em, max: 0.02em)))
+  show align: set par(justify: false)
+  show table: set par(justify: false)
   set list(marker: text(size: 9pt, [●]), indent: 6pt, body-indent: 10pt)
   show link: set text(fill: link-text)
   show heading.where(level: 1): it => text(size: 24pt, weight: "bold", fill: ink, it.body)

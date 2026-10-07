@@ -32,7 +32,9 @@ style, the layout pass). Work through these steps in order and report briefly af
    blocks (not in `main.typ`, which is regenerated), recompile, and look again until every
    page is presentable. A fix that belongs to the theme goes in `lab/themes/` and upstream
    with `scripts/lab-templates.sh push`. Slide titles are in Title Case; one figure per slide;
-   no bullet walls.
+   no bullet walls. A slide flagged text-heavy (more than 120 body words) loses at least 10 %
+   of its words: rewrite more concisely, keep every number and claim that matters, then
+   enlarge type or spacing so the body still fills the slide.
 
 5. **Report.** Summarise for the author: the deck (page count, minutes, blocks), what changed since
    the last talk on the topic, open items, and the remaining layout flags with the reason

@@ -390,7 +390,7 @@ def make_template_cmd(
         raise typer.Exit(code=1)
 
     s = make_template.build(_P(dest), force=force)
-    typer.echo(f"{s['dest']}: {s['files']} files written")
+    typer.echo(f"{s['dest']}: {s['files']} files written; lab/ = lab-templates {s.get('lab', '?')}")
     if s["hits"]:
         for h in s["hits"]:
             typer.echo(f"  PRIVATE PATTERN: {h}")

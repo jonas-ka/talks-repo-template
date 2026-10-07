@@ -32,3 +32,20 @@ Typst/Touying implementation: `karthein.typ`. Logos: `logos/`.
   `assets/catalog.yaml`.
 - Handout mode (`handout: true` in the theme config) collapses `#pause` steps to one page
   per slide for posted PDFs.
+
+# Exam theme (`karthein-exam.typ`, since v2026.10.3)
+
+Written exams in the layout of the PHYS 207 Don't Panic final (Fall 2025): a cover page with
+the title line ("COURSE — Term — Exam"), the instructor/sections/date line in italic, the name,
+section and signature boxes, the equation sheet (black title bar, two columns of titled
+groups) and the graders' table (black bar "LEAVE BLANK; FOR GRADERS ONLY!", one column per
+problem with its points, the total). Every later page carries "Name:" and "COURSE - Exam -
+Instructor — Page n of N". Problems are bold "Problem n: Title" with a statement; parts are
+"a)" … with the question, a blank answer space, the points "/n" at the bottom right and a thin
+rule. A figure can sit to the left of a part (`figure:`).
+
+`--input mode=solutions` prints the typed solution in each part's space (dark blue, a left
+rule) and the rubric marks `#pts(n)[note]` as green circled "+n" with the note, as the graded
+key does by hand. The graders' table sums the parts' points, so it cannot disagree with them.
+Equations need alt text like everywhere else (`talks alts <file>` writes the sidecar; the
+equation sheet is covered too). Example: `examples/exam.typ`.

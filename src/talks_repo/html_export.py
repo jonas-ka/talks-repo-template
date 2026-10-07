@@ -18,7 +18,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from talks_repo import REPO_ROOT
+from talks_repo import REPO_ROOT, rev_inputs
 
 _TEMPLATE = """<!doctype html>
 <html lang="en">
@@ -115,7 +115,7 @@ def _hoist_images(svgs: list[str]) -> tuple[list[str], dict[str, str]]:
 def export_html(main: Path, out: Path, handout: bool, title: str) -> dict:
     with tempfile.TemporaryDirectory() as tmp:
         pattern = Path(tmp) / "slide-{0p}.svg"
-        cmd = ["typst", "compile", "--root", str(REPO_ROOT), "--format", "svg"]
+        cmd = ["typst", "compile", "--root", str(REPO_ROOT), "--format", "svg", *rev_inputs()]
         if handout:
             cmd += ["--input", "handout=true"]
         cmd += [str(main), str(pattern)]

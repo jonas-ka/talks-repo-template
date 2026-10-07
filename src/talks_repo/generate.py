@@ -25,7 +25,7 @@ from typing import Any
 
 import yaml
 
-from talks_repo import REPO_ROOT, TALKS_YAML, manifest
+from talks_repo import REPO_ROOT, TALKS_YAML, manifest, rev_inputs
 from talks_repo.extract import read_container
 
 BLOCKS_DIR = REPO_ROOT / "blocks"
@@ -358,7 +358,7 @@ def deck_name(brief: dict[str, Any], slug: str) -> str:
 
 def compile_deck(main: Path, handout: bool, name: str = "out") -> tuple[bool, str, Path]:
     out = main.parent / (f"{name}-handout.pdf" if handout else f"{name}.pdf")
-    cmd = ["typst", "compile", "--root", str(REPO_ROOT), "--pdf-standard", "ua-1"]
+    cmd = ["typst", "compile", "--root", str(REPO_ROOT), "--pdf-standard", "ua-1", *rev_inputs()]
     if handout:
         cmd += ["--input", "handout=true"]
     cmd += [str(main), str(out)]

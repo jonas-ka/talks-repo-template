@@ -36,10 +36,14 @@ figure notebook; the guides). Public repository; consumers pull it as a git subt
 
 `jonas-ka/talks-repo` (private; also generates the public `talks-repo-template` from its
 `lab/`), `jonas-ka/phys206-mechanics`, `jonas-ka/phys698-nucl-exp`, `jonas-ka/karthein-cv`,
+`jonas-ka/cyclotron-talks` (private; notes theme for the host guidelines, since v2026.10.2),
 and, once wired, `fastsims` and `ion-optics-surrogate` (lab notebook template, figure README).
-`.github/workflows/update-consumers.yml` opens an update pull request in each when a tag is
-pushed; it needs a `CONSUMER_TOKEN` secret (a fine-grained personal access token with
-contents and pull-request write on those repositories) and does nothing until one exists.
+**After tagging, run `scripts/propagate.sh <tag>`** on the author's machine: it pulls the tag
+into every consumer clone under `~/Projects`, runs that repository's build check, commits and
+pushes; a failing check leaves the pull committed but unpushed and says so. This uses the local
+git/gh credentials, so no secret is needed. `.github/workflows/update-consumers.yml` is the
+hosted alternative (update pull requests per tag); it needs a `CONSUMER_TOKEN` secret and does
+nothing until one exists.
 
 ## Where things came from
 

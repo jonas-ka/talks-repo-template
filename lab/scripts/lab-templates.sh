@@ -27,6 +27,14 @@ case "$cmd" in
     echo "added lab-templates $ref in $PREFIX/ ($(cat $PREFIX/VERSION))" ;;
   pull)
     ensure_remote
+    if ! git log -1 --grep="git-subtree-dir: $PREFIX" --format=%H | grep -q .; then
+      # A repository made from talks-repo-template has lab/ as plain files without subtree
+      # history: replace that copy once by the subtree, then later pulls work normally.
+      echo "lab/ has no subtree history (a repository made from the template); re-adding it as a subtree"
+      git rm -r -q "$PREFIX" && git commit -q -m "lab-templates: the template's copy of $PREFIX/ replaced by the subtree"
+      git subtree add --prefix "$PREFIX" lab-templates "$ref" --squash -m "lab-templates $ref added as a subtree in $PREFIX/"
+      echo "now at lab-templates $(cat $PREFIX/VERSION)"; exit 0
+    fi
     git subtree pull --prefix "$PREFIX" lab-templates "$ref" --squash -m "lab-templates updated to $ref"
     echo "now at lab-templates $(cat $PREFIX/VERSION); review: git log -1 --stat" ;;
   push)

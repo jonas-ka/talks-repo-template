@@ -35,7 +35,9 @@ scripts/lab-templates.sh status      # which version this repository has
 ```
 
 `lab/VERSION` records the version in use. Versions are tags `vYYYY.MM.N`; a consumer is never
-updated silently, because a theme change re-flows every document built on it.
+updated silently, because a theme change re-flows every document built on it. The maintainer
+updates all consumers at once with `scripts/propagate.sh <tag>` (pull, build check, commit,
+push per repository, using the local credentials).
 
 Themes read two things from the consumer: `/assets/catalog.yaml` (figures with alt text, via
 `cat-fig`) and `/themes/logos/<name>` (the real logos, never in this public repository).

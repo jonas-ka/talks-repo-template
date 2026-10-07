@@ -137,7 +137,9 @@ src/talks_repo/      all Python: one module per stage, exposed as `talks <stage>
   300 ppi background. Import with File > Import slides; text is searchable and reusable there,
   the Typst source stays the original. `--flat` gives one picture per page (posters),
   `--pages 1,3-4`, `--png` keeps the renders, a PDF path works too. Bold is recovered from
-  glyph advances (Typst embeds a variable font's regular and bold under one name).
+  glyph advances (Typst embeds a variable font's regular and bold under one name). Each text
+  box is 10 % wider than its line, extended to the right, with the text left-aligned
+  (2026-10-07): Google Slides re-wraps text that exactly fills its box.
 - The input folders live in Google Drive and iCloud Drive. Files can be cloud-only
   placeholders; opening one forces a download. `talks discover` skips those and flags
   them. Ask the author to download a folder rather than pulling it from a script.
@@ -362,6 +364,15 @@ timing, asset problems, and `updates.md` entries newer than the last talk on the
   or composer column, not inside boxes or function bodies; `layout` reports the full body
   height including the header, so use fixed column heights (~296 pt).
 - One figure per slide, minimal text, no bullet walls.
+- **Text budget** (the author, 2026-10-07): a slide with more than 120 words of body text (type of
+  11.5 pt and up; captions, footnotes and figure labels do not count) is text-heavy and loses
+  at least 10 % of its words in the layout pass. `talks layout` counts the words per page and
+  flags a text-heavy slide with its target ("cut to <= N words").
+- Running text is **justified** (theme, lab-templates v2026.10.6): paragraphs, bullets and
+  column text; centred captions, diagram labels and tables are not. The **title slide** prints
+  the template version and the git revision the deck was built from (bottom right, small);
+  `talks generate`, `talks html` and `talks course build` pass `--input rev=` (`git describe
+  --always --dirty`, so `-dirty` marks uncommitted changes).
 - **Final layout pass on every new or changed slide.** Content is not written top-down and
   left there: render the page, look at it, and adjust until it is presentable. Paragraphs
   and bullets get visible spacing (10-13 pt at body size; `#set par(spacing: 0pt)` removes
@@ -480,4 +491,7 @@ the old paths (`themes/*.typ`, `notes/labnotes-template.typ`, `theme/cv-theme.ty
 shims and are never edited. A theme fix is made in `lab/` and sent upstream with
 `scripts/lab-templates.sh push`; updates come in with `scripts/lab-templates.sh pull <tag>` after
 reading `lab/CHANGELOG.md`; never silently. Logos stay in `themes/logos/`. Log books compile from
-the repository root: `typst compile --root . notes/<name>-logbook.typ`.
+the repository root: `typst compile --root . notes/<name>-logbook.typ`. The public
+`talks-repo-template` ships the **newest lab-templates tag** in its `lab/`, not this repository's
+pinned one: `talks make-template` extracts it from `../lab-templates` (or a clone) and passes it
+through the same scrub and scan.
