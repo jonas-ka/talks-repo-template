@@ -20,7 +20,8 @@ Figures/
     data/                              the numbers it draws (CSV, npz, …) or a note where they are
 ```
 
-Folder and file names: lower case, hyphens, no spaces, starting with the kind:
+Folder and file names: hyphens, no spaces, lower case except names that are written with
+capitals (FastSims, H200), starting with the kind:
 `plot-` (data plot), `schematic-` (drawing, diagram), `table-`, `photo-` (photos go to
 `../Photos/`). Example: `plot-speed-comparisons-legacy-FastSims-Surrogate-M4Pro-H200`, `schematic-mr-tof-principle`.
 
@@ -55,7 +56,9 @@ Folder and file names: lower case, hyphens, no spaces, starting with the kind:
    source: "fastsims scripts/talk_figures.py, VISION jobs 585537 and 585681"
    author: "J. Karthein"
    date: 2026-09-24
-   supersedes: null           # id of an older figure this one replaces, if any
+   version: 1                 # raised by one with every change (below)
+   variant: null              # null for the normal (slide/paper) version; poster | talk
+   supersedes: null           # the version this one replaces: <name> for v1, <name>-vN after
    notes: ""
    ```
 
@@ -102,22 +105,27 @@ plot-speed-comparisons-legacy-FastSims-Surrogate-M4Pro-H200/
 - **Black** ticks, tick labels, axis labels and frame. No grey text.
 - **A full box** around every plot: all four spines. Not only bottom and left axes lines.
 - **Bold axis labels** (`fontweight="bold"`), regular tick labels, so the eye separates the two;
-  15 pt labels / 13 pt ticks at the template's 6×4 in, scaled with the figure.
+  15 pt labels / 13 pt ticks at the template's 6×4 in, scaled with the figure. The same figure
+  serves slides and papers (on a slide beside text it shows at about 12/11 pt, in a paper
+  column at about 9/8 pt); posters get their own variant (below).
 - **Legend inside the box, without a border** (`frameon=False`), placed where no data is. Or
   replace it by short text labels next to the curves, which is often easier to read. Never a
   boxed legend floating outside the plot.
 - **Annotations** (arrows, gains, times) in black text; the arrow or marker carries the colour.
+  Coloured text, where it is needed, uses the darker `plot_text` colours in `palette.yaml`
+  (`#8E7200` yellow, `#3C8620` green, …): the lab yellow and green are hard to read on white.
 - **Text never sits on data.** Labels and annotations go where the plot is empty; a label for a
   curve's end goes beside the end (extend the axis range a little to make room); if there is no
   empty region, shorten the label or use a thin leader line to a clear spot. Check the render:
   a label crossing a line or a marker is hard to read.
-  Coloured *text* in the lab yellow or green is hard to read on white.
 - **Lines that connect panels** are drawn once across the figure (`matplotlib.patches.ConnectionPatch`),
   not as separate pieces per panel.
 - STIX fonts (`STIX Two Text` / `STIXGeneral`, mathtext `stix`), as in the template notebook.
-  **Call `fastsims.plotting.lab_style(size)` at the top of every figure script** -- it sets the font family,
-  the black frame and text, bold labels, frameless legends and editable text in PDF/SVG in one place; setting
-  size and weight alone falls back to DejaVu Sans (log book 2026-10-02).
+  **Start every figure script with the lab style file:** `plt.style.use("lab/themes/karthein.mplstyle")`
+  in a repository that carries the templates (`themes/karthein.mplstyle` in `lab-templates`). It sets
+  the fonts, the colours, the black frame and text, the label and tick sizes, frameless legends and
+  editable text in PDF/SVG in one place; setting size and weight alone falls back to DejaVu Sans.
+  In Colab, the template notebook sets the same by hand.
 
 ## Rules of the folder
 

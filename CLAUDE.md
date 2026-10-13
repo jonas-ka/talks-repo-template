@@ -109,7 +109,9 @@ assets/catalog.yaml  metadata per asset
 blocks/              reusable slide modules (*.typ) with a tagged header
 themes/              Typst/Touying slide theme, poster theme (karthein-poster.typ), palette, logos
 talks/<slug>/        brief.yaml, main.typ, report.md, YYMM.<Event>-YourName.pdf + .html (ignored);
-                     posters: poster.typ + PDF (ignored)
+                     posters: poster.typ + PDF (ignored). <slug> is YYMM.DD.<name>: the talk's
+                     date, then a short hyphenated name, case as written (2611.05.triumf-colloquium,
+                     2610.09.Anna-DNP-poster); `talks generate` refuses other names (the author, 2026-10-13)
 archive/<talk-id>/   deck.pdf, deck.pptx (ignored), manifest.yaml
 review/              generated review sheets; CSVs tracked, HTML contact sheets ignored
 work/                intermediate extraction dumps (ignored)
@@ -199,7 +201,7 @@ with a provenance header; `status: unreviewed` until the author checks them.
 ### talks.yaml (one entry per talk)
 
 ```yaml
-- id: 2024-10-aps-dnp-2024       # YYYY-MM-slug, unique; safe to rename by hand before Stage C
+- id: 2024-10-aps-dnp-2024       # YYYY-MM-slug from the CV, unique; talks made in talks/ use their folder name (YYMM.DD.<name>)
   cv_index: 51                    # number in the CV's Presentations list; Stage A's merge key
   date: "2024-10"                 # YYYY-MM from the CV; Stage C may refine to YYYY-MM-DD
   title: "..."
@@ -367,7 +369,10 @@ timing, asset problems, and `updates.md` entries newer than the last talk on the
 - **Text budget** (the author, 2026-10-07): a slide with more than 120 words of body text (type of
   11.5 pt and up; captions, footnotes and figure labels do not count) is text-heavy and loses
   at least 10 % of its words in the layout pass. `talks layout` counts the words per page and
-  flags a text-heavy slide with its target ("cut to <= N words").
+  flags a text-heavy slide with its target ("cut to <= N words"). **Exception (the author, 2026-10-09): the
+  Genesis all-hands update decks** (`talks/*-genesis-all-hands/`) may carry more text -- they are also
+  read by people who did not attend the meeting -- so there the flag is informational: report it, do
+  not cut content for it.
 - Running text is **justified** (theme, lab-templates v2026.10.6): paragraphs, bullets and
   column text; centred captions, diagram labels and tables are not. The **title slide** prints
   the template version and the git revision the deck was built from (bottom right, small);
@@ -398,7 +403,7 @@ timing, asset problems, and `updates.md` entries newer than the last talk on the
 Posters are not generated from blocks: each is one hand-written `talks/<slug>/poster.typ` on
 the poster theme `themes/karthein-poster.typ` (A0 portrait by default; palette, fonts and
 logos shared with the slide theme). First used for the <Your University> System AI Research &
-Innovation Meeting (`talks/2026-10-tamus-ai-poster`).
+Innovation Meeting (`talks/2610.06.tamus-ai-poster`).
 
 - Structure: `#show: poster.with(title: …)`, `#poster-header(…)` (grey band, title,
   subtitle, authors, collaborators, logos on the right at one visible height, centred),

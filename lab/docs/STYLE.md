@@ -81,8 +81,9 @@ sidecar (`talks alts`) for plain `$...$`; the HTML export carries MathML.
 
 `plt.style.use("themes/karthein.mplstyle")` gives: STIX fonts, the four lab colours in order
 (then black, grey), black bold axis labels and regular ticks, a full box of four spines, no
-grid by default, legends inside without a frame. The rules that a style file cannot enforce:
-one colour per *thing* kept across panels and figures; annotations in black with the colour
+grid by default, legends inside without a frame, 15 pt labels and 13 pt ticks at 6×4 in (one
+size for slides and papers; posters get their own variant). The rules that a style file cannot
+enforce: one colour per *thing* kept across panels and figures; annotations in black with the colour
 on the marker or line; **text never on data** (labels in empty regions, end labels beside the
 curve end, else a leader line); `plt.subplots` for every figure; save PDF + SVG + PNG
 (300 dpi) from the same figure object with `bbox_inches="tight"`; captions one line.

@@ -41,18 +41,18 @@ def grid_from_pages(src: Path, pages: list[int], cols: int, out: Path, gap: floa
 
 
 def main() -> None:
-    colloq = next((ROOT / "talks/2026-11-triumf-colloquium").glob("*.pdf"))
+    colloq = next((ROOT / "talks/2611.05.triumf-colloquium").glob("*.pdf"))
     grid_from_pages(colloq, list(range(2, 9)), 3, NOTES / "fig-triumf-intro.pdf")    # slide 3, steps 1-7
     grid_from_pages(colloq, [9, 10, 11, 13, 15, 16], 3, NOTES / "fig-triumf-hfs.pdf")  # hyperfine slides
-    radis = next((ROOT / "talks/2026-09-test-radis").glob("*.pdf"), None)
+    radis = next((ROOT / "talks/2609.18.test-radis").glob("*.pdf"), None)
     if radis is not None:
         grid_from_pages(radis, [0, 1, 2, 3], 2, NOTES / "fig-theme-radis.pdf")
-    poster = ROOT / "talks/2026-10-tamus-ai-poster/UNI-System-AI-Poster-YourName.pdf"
+    poster = ROOT / "talks/2610.06.tamus-ai-poster/UNI-System-AI-Poster-YourName.pdf"
     if poster.exists() and not (NOTES / "fig-poster-draft.pdf").exists():
         grid_from_pages(poster, [0], 1, NOTES / "fig-poster-draft.pdf")   # the 2026-09-29 draft, kept as history
     if poster.exists():
         grid_from_pages(poster, [0], 1, NOTES / "fig-poster-revised.pdf")
-    nvidia = next((ROOT / "talks/2026-09-nvidia-vision").glob("*.pdf"), None)
+    nvidia = next((ROOT / "talks/2609.28.nvidia-vision").glob("*.pdf"), None)
     if nvidia is not None:
         grid_from_pages(nvidia, [0, 2, 4, 6, 8, 10], 3, NOTES / "fig-nvidia-aws.pdf")
 

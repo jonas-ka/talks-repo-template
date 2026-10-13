@@ -345,12 +345,26 @@ def write_main(slug: str, brief: dict[str, Any], blocks: list[Block]) -> Path:
     return main
 
 
+SLUG_RE = re.compile(r"^(\d{2})(\d{2})\.(\d{2})\.[A-Za-z0-9][A-Za-z0-9-]*$")
+
+
+def check_slug(slug: str, brief: dict[str, Any]) -> None:
+    """Talk folders are named YYMM.DD.<name> after the talk's date (the author, 2026-10-13)."""
+    d = str(brief.get("date", ""))[:10]
+    want = f"{d[2:4]}{d[5:7]}.{d[8:10]}" if len(d) == 10 else "YYMM.DD"
+    m = SLUG_RE.match(slug)
+    if not m:
+        raise ValueError(f"talks/{slug}: folder name must be YYMM.DD.<name>, e.g. {want}.<name>; rename the folder")
+    if len(d) == 10 and slug[:7] != want:
+        raise ValueError(f"talks/{slug}: name says {slug[:7]} but brief.yaml has date {d}; rename the folder to {want}.{slug[8:]}")
+
+
 def deck_name(brief: dict[str, Any], slug: str) -> str:
     """Output basename in the lab's convention: YYMM.<Event>-YourName, or the brief's `name`."""
     if brief.get("name"):                      # lectures: PHYS206-L01-overview
         return re.sub(r"[^A-Za-z0-9._-]+", "-", str(brief["name"])).strip("-")
     slug = slug.rsplit("/", 1)[-1]
-    d = str(brief.get("date", ""))[:7].replace("-", "")[2:] or slug[:7].replace("-", "")[2:]
+    d = str(brief.get("date", ""))[:7].replace("-", "")[2:] or (slug[:4] if SLUG_RE.match(slug) else slug[:7].replace("-", "")[2:])
     event = re.sub(r"[^A-Za-z0-9]+", "-", str(brief.get("event") or slug)).strip("-")
     author = re.sub(r"[^A-Za-z]", "", str(brief.get("author", "Your Name")))
     return f"{d}.{event}-{author}"
@@ -387,6 +401,8 @@ def generate(slug: str, force: bool = False) -> dict[str, Any]:
     if not brief_path.exists():
         raise FileNotFoundError(f"{brief_path} missing (schema in CLAUDE.md)")
     brief = yaml.safe_load(brief_path.read_text(encoding="utf-8")) or {}
+    if "/" not in slug:
+        check_slug(slug, brief)
     main = tdir / "main.typ"
     if main.exists() and not force:
         raise FileExistsError(f"{main} exists; use --force to regenerate")

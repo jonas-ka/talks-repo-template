@@ -11,7 +11,8 @@ style, the layout pass). Work through these steps in order and report briefly af
 1. **Find or draft the brief.**
    - If `talks/<slug>/brief.yaml` exists (the argument is a slug, or matches a folder under
      `talks/`), read it and any `TODO.md` or notes in that folder.
-   - Otherwise derive a slug `YYYY-MM-<event>` from the description and draft `brief.yaml` in
+   - Otherwise derive a slug `YYMM.DD.<name>` (the talk's date, then a short hyphenated name,
+     e.g. `2611.05.triumf-colloquium`) from the description and draft `brief.yaml` in
      the schema from CLAUDE.md (title, date, event, duration_min, audience, topics, abstract,
      notes, sponsors, spine). Fill only what the description and `talks.yaml` support; mark
      the rest `TODO`.

@@ -2,6 +2,34 @@
 
 Consumers read this before `scripts/lab-templates.sh pull <tag>`.
 
+## v2026.10.8 (2026-10-13)
+
+- **Example figure redrawn** (`plot-us-cpi-u-yoy-2023-2026`, version 2): `plot_cpi.py` now starts
+  from `karthein.mplstyle` at 6 × 4 in (15 / 13 pt), legend inside without a frame, no title or
+  grid, black annotations in empty regions; PDF and SVG come from the same figure object (the
+  SVG with text as outlines, so it looks the same in every Typst build). The alt text's values
+  corrected (lows 2.3–2.4 %, peak about 4.2 %).
+- **Figure sizes, decided:** `themes/karthein.mplstyle` now sets 15 pt bold axis labels and 13 pt
+  ticks and legend at 6 × 4 in (it had 11 / 9.5 pt, against the guide and the template notebook).
+  One size for slides and papers: about 12 / 11 pt beside text on a slide, 9 / 8 pt in a paper
+  column. Figures drawn with the style file come out larger when redrawn.
+- `docs/FIGURES_README.md`: start each script with `karthein.mplstyle` (not the `fastsims`-only
+  `lab_style`); `figure.yaml` gains `version` and `variant`, and `supersedes` has one meaning;
+  names may keep capitals where the name has them (FastSims, H200); coloured text uses the
+  `plot_text` colours. `docs/STYLE.md` states the sizes.
+- `scripts/lab-templates.sh check`: says whether a newer tag is out and how to update; never
+  pulls and never fails a build (offline it says it did not check). Consumers run it first in
+  every build. `pull latest` updates to the newest tag. The script now works on the repository
+  root wherever it sits, so consumers use `lab/scripts/lab-templates.sh`, which every pull keeps
+  current; the copy in a consumer's `scripts/` is only needed for the first `add`.
+- `README.md`: the file tree as it is (exam theme, `assets/`, `propagate.sh`), what you need
+  (Typst 0.15.1, packages, fonts), `<tag>` in the commands, "Staying up to date"; licence MIT
+  for everything (the earlier "CC BY 4.0 for themes and documents" had no licence file).
+- `assets/sources/cpi-u-yoy/`: the script and saved BLS data of the example figure, which
+  `assets/catalog.yaml` pointed to but which were only in `phys206-mechanics`.
+- CI: the private-material scan also reads `.ipynb`, `.json`, `.svg` and `.yml` files.
+  `update-consumers.yml`: `cyclotron-talks` added.
+
 ## v2026.10.7 (2026-10-07)
 
 - `scripts/lab-templates.sh pull` works in a repository made from `talks-repo-template`: there

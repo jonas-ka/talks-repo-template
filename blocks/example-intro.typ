@@ -41,9 +41,9 @@
   and why. The story: `RECIPE.md`.
   #v(52pt)
   #grid(columns: (1fr, 1fr, 1fr), column-gutter: 14pt,
-    ..(("uv run talks generate example-talk", "brief to deck: PDF (UA-1), HTML, report.md"),
-       ("uv run talks layout example-talk", "blank band, balance and words per page"),
-       ("uv run talks pptx example-talk", "live-text PPTX for Google Slides")).map(((cmd, what)) =>
+    ..(("uv run talks generate 2601.15.example-talk", "brief to deck: PDF (UA-1), HTML, report.md"),
+       ("uv run talks layout 2601.15.example-talk", "blank band, balance and words per page"),
+       ("uv run talks pptx 2601.15.example-talk", "live-text PPTX for Google Slides")).map(((cmd, what)) =>
       block(width: 100%, inset: 9pt, radius: radius.md, fill: band, stroke: 1pt + band.darken(20%),
         text(size: 13pt)[#raw(cmd) \ #text(fill: muted, what)])))
   #v(10pt)
