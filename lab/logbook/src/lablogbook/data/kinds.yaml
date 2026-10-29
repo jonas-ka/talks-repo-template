@@ -1,0 +1,29 @@
+# Entry kinds. A central book can add its own in its kinds.yaml (same form); nothing here is
+# lab-specific. requires: missing -> the check fails; recommends: missing -> a warning.
+note:
+  description: Any piece of work.
+run:
+  description: A measurement or beam time, with its settings.
+  recommends: [runs, parameters]
+calibration:
+  description: A calibration; current until valid_until.
+  recommends: [apparatus, valid_until]
+maintenance:
+  description: Work on the apparatus (vent, bake-out, repair, exchange).
+  recommends: [apparatus, valid_until]
+incident:
+  description: Something went wrong (vacuum loss, HV trip, interlock, damage). No health information, ever.
+  requires: [apparatus]
+meeting:
+  description: A meeting, with who was there and what was decided.
+  recommends: [attendees]
+correction:
+  description: Says what was wrong in an earlier entry.
+  requires: [corrects]
+redaction:
+  description: Records that something was removed from an earlier entry (never what).
+  requires: [redacts, level]
+order:
+  description: A purchase order, with its items; each item stays open until an entry says it arrived.
+  requires: [order, items]
+  form: false   # written by a script (its items as JSON), not offered in the "New entry" form

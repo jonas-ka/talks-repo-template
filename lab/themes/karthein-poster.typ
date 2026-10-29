@@ -1,6 +1,6 @@
 // Karthein Lab poster theme (A0 portrait by default), matching the slide theme's palette,
 // fonts and diagrams. First used for the Your University System AI Research & Innovation Meeting
-// poster (talks/2026-10-tamus-ai-poster).
+// poster (talks/2610.06.tamus-ai-poster).
 //
 // Usage (talks/<slug>/poster.typ):
 //   #import "/themes/karthein-poster.typ": *
@@ -256,7 +256,8 @@
 /// height is left becomes the bottom margin (design the page so it ends near the side
 /// margin). If the body is too tall the whole footer moves to a second page, never a
 /// split line.
-#let poster-footer(event: none, acknowledgements: [], website: "lab.example.edu", contact: "you@example.edu") = {
+/// `contact`: the presenter's address; `website`: e.g. the group's site (both optional).
+#let poster-footer(event: none, acknowledgements: [], website: none, contact: none) = {
   v(poster-gutter)
   block(width: 100%, breakable: false, above: 0pt, below: 0pt, {
     set text(size: 22pt)
@@ -269,8 +270,8 @@
         par(text(fill: muted)[*Acknowledgements:* #acknowledgements])
       },
       align(right, text(weight: "bold", {
-        if website != none { link("https://" + website, website); linebreak() }
-        link("mailto:" + contact, contact)
+        if website != none { link("https://" + website, website); if contact != none { linebreak() } }
+        if contact != none { link("mailto:" + contact, contact) }
       })),
     )
   })

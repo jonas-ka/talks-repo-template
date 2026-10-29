@@ -1,0 +1,27 @@
+# Written by `logbook init-github` (lab-templates). The ruleset on main requires the check
+# "entry-checks": a pull request merges only when it passes. On main itself it runs as a tripwire.
+name: entry-checks
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  entry-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: astral-sh/setup-uv@v6
+      - name: Check what this pull request changes
+        if: github.event_name == 'pull_request'
+        env:
+          BASE: origin/${{ github.base_ref }}
+          SUBMITTER: ${{ github.event.pull_request.user.login }}
+        run: uv run --project lab/logbook logbook check --base "$BASE" --submitter "$SUBMITTER" --ci
+      - name: Tripwire on main (append-only)
+        if: github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000'
+        env:
+          BASE: ${{ github.event.before }}
+        run: uv run --project lab/logbook logbook check --base "$BASE" --ci

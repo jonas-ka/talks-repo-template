@@ -49,9 +49,9 @@ style, the layout pass). Work through these steps in order and report briefly af
 7. **Spine and CV.** Check that the talk is in `talks.yaml` (generate appends it unless
    `spine: false`). Set `cv: false` for internal meetings so they stay out of the CV.
 
-8. **Log book and commit.** Add a `#note` for this talk under today's `#day` in
-   `notes/talks-repo-logbook.typ` (append a new `#day` if today has none). Record decisions,
-   numbers and open items, not a narrative. Compile it with
-   `typst compile --root . notes/talks-repo-logbook.typ`. Then commit the brief, the blocks,
-   `talks.yaml` and the log book, with a descriptive message; built PDFs, HTML and PPTX stay
-   ignored. Push.
+8. **Log book and commit.** Write a log-book entry for this talk in Karthein Notes (project
+   Talks): `uv run --project lab/logbook logbook new --from draft.md`, where the draft is Markdown
+   with a short YAML header (title, kind, subproject); `logbook.yaml` connects this repository,
+   and the Typst log book `notes/talks-repo-logbook.typ` is frozen since 2026-10-14. Record
+   decisions, numbers and open items, not a narrative. Then commit the brief, the blocks and
+   `talks.yaml` with a descriptive message; built PDFs, HTML and PPTX stay ignored. Push.

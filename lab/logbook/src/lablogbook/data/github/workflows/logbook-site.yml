@@ -1,0 +1,51 @@
+# Written by `logbook init-github` (lab-templates). Builds the HTML view and the PDF on every
+# change to main and publishes them with GitHub Pages (set Pages to "GitHub Actions" and its
+# visibility to private: only people who can read the repository can open the site).
+name: site
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:      # also started by the form's workflow after its entry merges
+  schedule:
+    - cron: "17 6 * * *" # once a day, in case a merge started no build
+permissions:
+  contents: write     # the status branch below; main stays protected by its ruleset
+  pages: write
+  id-token: write
+concurrency: {group: pages, cancel-in-progress: true}
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}        # the history gives each entry's logged-at time
+      - uses: astral-sh/setup-uv@v6
+      - uses: typst-community/setup-typst@v4
+        with: {typst-version: "0.15.1"}
+      - name: Install pandoc
+        run: |
+          curl -fsSL -o /tmp/pandoc.deb https://github.com/jgm/pandoc/releases/download/3.12/pandoc-3.12-1-amd64.deb
+          sudo dpkg -i /tmp/pandoc.deb
+      - name: Build the view and the PDF
+        run: uv run --project lab/logbook logbook build --html _site --pdf build/logbook.pdf && cp build/logbook.pdf _site/
+      - name: Purchases status (orders.json on the branch logbook-status, for tools outside GitHub)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          uv run --project lab/logbook logbook orders --json > /tmp/orders.json
+          if [ "$(tr -d '[:space:]' < /tmp/orders.json)" != "[]" ]; then
+            d=$(mktemp -d) && cp /tmp/orders.json "$d/" && cd "$d"
+            git init -q -b logbook-status && git add orders.json
+            git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -qm "Purchases status as of ${GITHUB_SHA::7}"
+            git push -fq "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" logbook-status
+          fi
+      - uses: actions/upload-pages-artifact@v3
+        with: {path: _site}
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: {name: github-pages, url: "${{ steps.deployment.outputs.page_url }}"}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

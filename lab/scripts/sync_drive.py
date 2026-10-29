@@ -14,6 +14,7 @@ from __future__ import annotations
 import hashlib
 import io
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -44,7 +45,7 @@ def main(dry_run: bool) -> int:
         while True:
             r = svc.files().list(q=f"'{parent}' in parents and trashed=false", corpora="drive", driveId=drive_id,
                                  includeItemsFromAllDrives=True, supportsAllDrives=True, pageSize=1000, pageToken=tok,
-                                 fields="nextPageToken, files(id,name,mimeType,md5Checksum)").execute()
+                                 fields="nextPageToken, files(id,name,mimeType,md5Checksum,createdTime)").execute()
             for f in r.get("files", []):
                 out.setdefault(f["name"], f)
             tok = r.get("nextPageToken")
@@ -66,12 +67,16 @@ def main(dry_run: bool) -> int:
         for local, drive_name in files:
             data = (ROOT / local).read_bytes()
             md5 = hashlib.md5(data).hexdigest()
-            if drive_name in present and present[drive_name].get("md5Checksum") == md5:
-                print(f"{path}/{drive_name}: unchanged")
+            stem, ext = os.path.splitext(drive_name)
+            # compare with the newest copy: the plain name or a versioned one (<stem>-vYYYY.MM.N[-k]<ext>)
+            copies = [f for n, f in present.items()
+                      if n == drive_name or re.fullmatch(re.escape(stem) + r"-v\d{4}\.\d+\.\d+(-\d+)?" + re.escape(ext), n)]
+            newest = max(copies, key=lambda f: f.get("createdTime", ""), default=None)
+            if newest and newest.get("md5Checksum") == md5:
+                print(f"{path}/{newest['name']}: unchanged")
                 continue
             name = drive_name
             if name in present:   # never overwrite: the new version gets the tag in its name
-                stem, ext = os.path.splitext(drive_name)
                 name = f"{stem}-{VERSION}{ext}"
                 k = 2
                 while name in present:

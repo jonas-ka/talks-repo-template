@@ -13,8 +13,11 @@ themes/        karthein.typ (Touying slides), karthein-poster.typ (A0), karthein
                speak-math.typ (spoken alt text for equations), palette.yaml, karthein.mplstyle,
                logos/ (placeholders: real marks live in each private repository)
 notes/         labnotes-template.typ (the lab notebook)
-docs/          STYLE.md, FIGURES_README.md, LOGBOOK_GUIDE.md, COURSES.md
-matplotlib/    <LabName>-figure-template.ipynb
+logbook/       the lab's log book as Markdown entries: format, checker, PDF and searchable view, the
+               `logbook` command line, GitHub form and workflows (docs/LOGBOOK_SETUP.md: a new book)
+docs/          STYLE.md, FIGURES_README.md, LOGBOOK_GUIDE.md, LOGBOOK_FORMAT.md, LOGBOOK_SETUP.md, COURSES.md
+matplotlib/    labfig.py (lab style; versioned figures with the information strip, record and code copy),
+               <LabName>-figure-template.ipynb (the Colab notebook)
 assets/        catalog.yaml, figures/, sources/: the one public example figure (BLS data), with the
                script and data that draw it, so the examples compile
 examples/      one small document per theme; CI compiles them (PDF/UA-1)
@@ -29,7 +32,11 @@ CHANGELOG.md   what changed in each tag; VERSION holds the current one
   `@preview/touying:0.6.1` (slides) and `@preview/mitex:0.2.7` (LaTeX math in slides).
 - **Fonts:** STIX Two Text and STIX Two Math for every theme (free, stixfonts.org; macOS ships
   both). The lab notebook uses Libertinus Serif, which is built into Typst.
-- **matplotlib** for `themes/karthein.mplstyle` and the figure notebook; `make` for `make check`.
+- **uv** for every Python in this repository: figure scripts run as `uv run plot_x.py`
+  (`matplotlib/labfig.py` refuses to save a figure version otherwise), and the log-book tools.
+- **matplotlib** for `themes/karthein.mplstyle`, `matplotlib/labfig.py` and the figure notebook;
+  `make` for `make check`.
+- For the log-book tools (`logbook/`): **uv**, and **pandoc** 3.x to build the PDF and the HTML view.
 
 Check a change with `make check`: it compiles every `examples/*.typ` with `--pdf-standard ua-1`
 into `build/`.

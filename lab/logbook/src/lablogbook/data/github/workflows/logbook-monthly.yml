@@ -1,0 +1,47 @@
+# Written by `logbook init-github` (lab-templates). On the first of each month: the previous
+# month's entries as a PDF, the whole log book as a PDF and the sources, published as a release
+# tagged snapshot/YYYY-MM. The job waits in the environment "attest": the PI's approval is the
+# dated attestation of that month's record. It also lists the internal-copy permissions to renew.
+name: monthly
+on:
+  schedule:
+    - cron: "0 13 1 * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+  issues: write
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    environment: attest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: astral-sh/setup-uv@v6
+      - uses: typst-community/setup-typst@v4
+        with: {typst-version: "0.15.1"}
+      - name: Install pandoc
+        run: |
+          curl -fsSL -o /tmp/pandoc.deb https://github.com/jgm/pandoc/releases/download/3.12/pandoc-3.12-1-amd64.deb
+          sudo dpkg -i /tmp/pandoc.deb
+      - name: Build the month, the whole book and the sources
+        run: |
+          m=$(date -d "$(date +%Y-%m-01) -1 day" +%Y-%m)
+          echo "MONTH=$m" >> "$GITHUB_ENV"
+          uv run --project lab/logbook logbook month --month "$m" --to release/
+          uv run --project lab/logbook logbook build --pdf release/Logbook-full-$m.pdf
+          git archive --format=tar.gz -o release/logbook-sources-$m.tar.gz HEAD
+      - name: Tag and release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ACTOR: ${{ github.actor }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          gh release create "snapshot/$MONTH" release/* --title "Log book, $MONTH" \
+            --notes "The record as of $(date -u +%FT%TZ), attested by @$ACTOR (approval in run $RUN_ID)."
+      - name: Internal-copy permissions to renew
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          uv run --project lab/logbook logbook copy-permissions > perms.md
+          if [ -s perms.md ]; then gh issue create --title "Renew or let lapse: internal copies ($MONTH)" --body-file perms.md; fi

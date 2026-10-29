@@ -14,11 +14,18 @@ WORK_DIR = REPO_ROOT / "work"
 def git_rev() -> str | None:
     """The revision a document is built from, for the title slide or the notes' first page
     (`--input rev=`): the short commit, with `-dirty` when tracked files have uncommitted
-    changes (`git describe --always --dirty`). None outside a git checkout."""
+    changes. Files the build itself writes (talks/*/main.typ, report.md, logbook/) do not count:
+    `talks generate` rewrites main.typ from the committed brief and blocks before compiling."""
     import subprocess
 
-    r = subprocess.run(["git", "describe", "--always", "--dirty", "--abbrev=7"], cwd=REPO_ROOT, capture_output=True, text=True)
-    return r.stdout.strip() or None if r.returncode == 0 else None
+    r = subprocess.run(["git", "rev-parse", "--short=7", "HEAD"], cwd=REPO_ROOT, capture_output=True, text=True)
+    if r.returncode != 0 or not r.stdout.strip():
+        return None
+    dirty = subprocess.run(
+        ["git", "status", "--porcelain", "--untracked-files=no", "--", ".",
+         ":(exclude,glob)talks/*/main.typ", ":(exclude,glob)talks/*/report.md", ":(exclude)logbook"],
+        cwd=REPO_ROOT, capture_output=True, text=True).stdout.strip()
+    return r.stdout.strip() + ("-dirty" if dirty else "")
 
 
 def rev_inputs() -> list[str]:

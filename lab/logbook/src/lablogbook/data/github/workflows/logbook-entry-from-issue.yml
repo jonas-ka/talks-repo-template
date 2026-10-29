@@ -1,0 +1,33 @@
+# Written by `logbook init-github` (lab-templates). A submitted "New entry" form becomes an entry
+# and a pull request that merges itself. A pull request opened with the workflow's own token
+# starts no other workflows, so this job runs the checker itself (the issue's author as
+# submitter) and reports it as the required check "entry-checks".
+name: entry-from-issue
+on:
+  issues:
+    types: [opened, edited, labeled]
+concurrency: {group: "entry-from-issue-${{ github.event.issue.number }}", cancel-in-progress: false}   # one run per issue at a time
+permissions:
+  actions: write       # starts the site's workflow after the merge
+  contents: write
+  issues: write
+  pull-requests: write
+  statuses: write
+jobs:
+  entry:
+    if: contains(github.event.issue.labels.*.name, 'new-entry') && github.event.issue.state == 'open'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: astral-sh/setup-uv@v6
+      - name: Make the entry, check it, open the pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE: ${{ github.event.issue.number }}
+          AUTHOR: ${{ github.event.issue.user.login }}
+          REPO: ${{ github.repository }}
+        run: |
+          git config user.name "log book"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          uv run --project lab/logbook logbook from-issue "$ISSUE" --submitter "$AUTHOR" --repo "$REPO"

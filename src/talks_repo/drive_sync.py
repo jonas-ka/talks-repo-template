@@ -1,20 +1,24 @@
-"""Mirror the reviewed catalog into the lab's shared Google Drive, append-only.
+"""Mirror the reviewed catalog into the lab's shared Google Drive, create-only.
 
     talks sync-drive [--kind plot ...] [--id ...] [--limit N] [--dry-run]
 
-Target (CLAUDE.md hard rule: files.create only, never update/rename/move/delete):
-    LabName/Figures/<catalog-id>/   plots, schematics, tables, equations
-    LabName/Photos/<catalog-id>/    photos, logos, screenshots
-One folder per entry at the top level, with the original file, the SVG twin (vector
-figures), a PNG preview, the plotting source (assets/sources/<id>/ when present) and
-figure.yaml with topics, level, provenance and uses (no alt text or caption: those are
-the author's). A dated index CSV is written at Figures/index-<date>.csv. Existing names are never overwritten: an entry
-folder that exists is completed with missing files only.
+Layout (lab-templates docs/FIGURES_README.md, since v2026.10.10): one folder per figure under
+LabName/Figures/ (photos, logos, screenshots under Photos/), every version side by side as
+`<name>-v<N>.pdf/.svg/.png` with a record `<name>-v<N>.yaml`; poster and talk variants in the main
+figure's folder as `<name>-poster-v<N>.*`; code copied per version (`code/<script>-v<N>.py`); each
+data file once (changed data under a new name); `figure.yaml` (caption, alt text: the author's) only
+when the folder has none. The catalog numbers versions by their place in the `supersedes` chain;
+the Drive keeps its own numbering, because figures are also versioned there directly (labfig
+redraws): a catalog version not yet on the Drive gets the next free Drive number, and its record
+names the catalog id and catalog version (`exported_from`). Nothing on the Drive is ever
+overwritten, moved, renamed or deleted: a catalog version that is already there (as its own folder
+from the older layout, version 1 in its own folder, or named in a record) is skipped. A dated index CSV is written at Figures/index-<date>.csv.
 """
 
 import csv
 import io
 import json
+import re
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -32,7 +36,7 @@ CATALOG = REPO_ROOT / "assets" / "catalog.yaml"
 
 
 class Drive:
-    """The only Drive write used is files.create. Listing is read-only."""
+    """The only Drive write is files.create (folders and files). Listing is read-only."""
 
     def __init__(self) -> None:
         from googleapiclient.discovery import build
@@ -47,7 +51,7 @@ class Drive:
             r = self.svc.files().list(
                 q=f"'{parent}' in parents and trashed=false", corpora="drive", driveId=SHARED_DRIVE_ID,
                 includeItemsFromAllDrives=True, supportsAllDrives=True, pageSize=1000, pageToken=token,
-                fields="nextPageToken, files(id,name,mimeType,size,modifiedTime)",
+                fields="nextPageToken, files(id,name,mimeType,size,modifiedTime,md5Checksum)",
             ).execute()
             for f in r.get("files", []):
                 out.setdefault(f["name"], f)
@@ -79,14 +83,6 @@ class Drive:
         while not done:
             _, done = dl.next_chunk()
         return buf.getvalue()
-
-    def move(self, file_id: str, from_parent: str, to_parent: str, dry_run: bool = False) -> None:
-        """The one write besides `files.create`: a file moves from a figure folder's top level
-        into that figure's dated version subfolder (the author, 2026-10-01). Nothing else is ever moved."""
-        if dry_run:
-            return
-        self.svc.files().update(fileId=file_id, addParents=to_parent, removeParents=from_parent,
-                                supportsAllDrives=True, fields="id,parents").execute()
 
     def upload(self, parent: str, name: str, data: bytes, mime: str, dry_run: bool = False) -> str | None:
         import time
@@ -230,6 +226,8 @@ def _entry_bytes(e: dict[str, Any]) -> list[tuple[str, bytes]]:
             if not p.is_file():
                 continue
             rel = p.relative_to(root)
+            if any(part in ("__pycache__", ".ipynb_checkpoints") or part.startswith(".") for part in rel.parts):
+                continue
             top = rel.parts[0] if len(rel.parts) > 1 else ""
             if top == "plots":
                 continue
@@ -252,100 +250,188 @@ def _entry_bytes(e: dict[str, Any]) -> list[tuple[str, bytes]]:
     return out
 
 
-def _drive_version(drive: "Drive", present: dict[str, dict[str, Any]]) -> int | None:
-    """The version recorded in the folder's top-level figure.yaml (1 if the file has none);
-    None when there is no figure.yaml, i.e. nothing to version."""
-    f = present.get("figure.yaml")
-    if f is None:
-        return None
-    try:
-        meta = yaml.safe_load(drive.download(f["id"])) or {}
-        return int(meta.get("version") or 1)
-    except Exception:  # noqa: BLE001
-        return 1
+def _chain(cat: list[dict[str, Any]]) -> dict[str, tuple[str, int]]:
+    """id -> (root id, version): the version is the entry's place in its `supersedes` chain.
+    An entry with `drive_root: true` starts its own chain (a redrawn figure replacing an unrelated one)."""
+    by_id = {e["id"]: e for e in cat}
+    out: dict[str, tuple[str, int]] = {}
+    for e in cat:
+        cur, n, seen = e, 1, {e["id"]}
+        while (not cur.get("drive_root") and isinstance(cur.get("supersedes"), str)
+               and cur["supersedes"] in by_id and cur["supersedes"] not in seen):
+            cur = by_id[cur["supersedes"]]
+            seen.add(cur["id"])
+            n += 1
+        out[e["id"]] = (cur["id"], n)
+    return out
 
 
-def _archive_version(drive: "Drive", folder_id: str, present: dict[str, dict[str, Any]], old_version: int,
-                     fig_id: str, dry_run: bool = False) -> int:
-    """Move every top-level file and the code/ and data/ folders of a figure folder into
-    v<old>_<YYYY-MM-DD>_<id>/, dated by the newest top-level file. Version subfolders
-    (v<N>_...) and other subfolders stay where they are."""
-    items = [v for n, v in present.items() if not (v["mimeType"] == FOLDER and not n in ("code", "data"))]
-    if not items:
-        return 0
-    newest = max((v.get("modifiedTime") or "") for v in items)[:10] or date.today().isoformat()
-    sub = f"v{old_version}_{newest}_{fig_id}"
-    sub_id = drive.ensure_folder(folder_id, sub, existing=present, dry_run=dry_run)
-    n = 0
-    for v in items:
-        drive.move(v["id"], folder_id, sub_id, dry_run=dry_run)
-        n += 1
-    return n
+def _placement(root: str, roots: set[str], area_folders: dict[str, Any]) -> tuple[str, str]:
+    """(Drive folder, file stem) for a figure whose chain starts at `root`: a poster or talk
+    variant goes into its main figure's folder when that figure exists."""
+    m = re.fullmatch(r"(.+)-(poster|talk)(-[a-z0-9]+)*", root)
+    if m and (m.group(1) in roots or m.group(1) in area_folders):
+        return m.group(1), root
+    return root, root
+
+
+def _versioned(name: str, stem: str, entry_id: str, version: int) -> str:
+    """The Drive name of one payload file: figure files `<stem>-v<N>.<ext>`, code `code/<x>-v<N>.<ext>`,
+    data and figure.yaml unchanged."""
+    if name == "figure.yaml" or name.startswith("data/"):
+        return name
+    if name.startswith("code/"):
+        q = Path(name[5:])
+        return f"code/{q.parent.as_posix() + '/' if q.parent.as_posix() != '.' else ''}{q.stem}-v{version}{q.suffix}"
+    q = Path(name)
+    return f"{stem}-v{version}{q.suffix}" if q.stem == entry_id else name
+
+
+def _record(e: dict[str, Any], stem: str, version: int, folder: str, files: list[str],
+            code: list[str], data: list[tuple[str, str]], catalog_version: int = 1) -> bytes:
+    """The version's record, in labfig's format (lab/matplotlib/labfig.py), so `labfig where-used`
+    finds it by the data's checksums."""
+    import subprocess
+    import sys
+    from datetime import datetime
+
+    sys.path.insert(0, str(REPO_ROOT / "lab" / "matplotlib"))
+    from labfig import _record_text
+
+    commit = subprocess.run(["git", "-C", str(REPO_ROOT), "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
+    return _record_text({
+        "figure": stem, "version": version, "files": files,
+        "saved": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "source": e.get("source"), "origin": e.get("origin"), "first_used": e.get("first_used"),
+        "exported_from": {"repository": "talks-repo", "file": "assets/catalog.yaml", "id": e["id"],
+                          "catalog_version": catalog_version, "commit": commit or None},
+        "code": {"copies": code} if code else None,
+        "data": {"files": [{"path": n, "sha256": h} for n, h in data]} if data else None,
+        "drive": {"folder": folder},
+        "note": "copied from the talks-repo catalog by `talks sync-drive`; drawn before lab-templates' labfig, so it has no information strip",
+    }).encode()
 
 
 def sync(kinds: set[str] | None, ids: set[str] | None, limit: int | None, dry_run: bool) -> dict[str, Any]:
+    import hashlib
+
     cat = yaml.safe_load(CATALOG.read_text(encoding="utf-8")) or []
+    chain = _chain(cat)
+    roots = {r for r, _ in chain.values()}
     drive = Drive()
-    roots = {"Figures": drive.top_folder("Figures"), "Photos": drive.top_folder("Photos")}
-    catalog_folders = dict(roots)   # flat: one folder per entry directly under Figures/ and Photos/
-    existing = {name: drive.list_children(fid) for name, fid in catalog_folders.items()}
-    stats: dict[str, int] = {"entries": 0, "folders_created": 0, "files_uploaded": 0, "files_skipped": 0, "bytes": 0}
+    area_ids = {"Figures": drive.top_folder("Figures"), "Photos": drive.top_folder("Photos")}
+    existing = {name: drive.list_children(fid) for name, fid in area_ids.items()}
+    stats: dict[str, int] = {"entries": 0, "versions_new": 0, "versions_present": 0, "folders_created": 0,
+                             "files_uploaded": 0, "files_skipped": 0, "bytes": 0}
+    plan: list[str] = []
     index_rows: list[dict[str, Any]] = []
-    for e in cat:
+    synced: dict[str, set[str]] = {}          # Drive folder -> catalog ids named in its records
+    next_free: dict[tuple[str, str], int] = {}  # (folder, stem) -> next free Drive version
+    for e in sorted(cat, key=lambda x: (chain[x["id"]][0], chain[x["id"]][1])):
         kind = e.get("kind")
         if kinds and kind not in kinds:
             continue
         if ids and e["id"] not in ids:
             continue
-        if kind in FIGURE_KINDS:
-            area = "Figures"
-        elif kind in PHOTO_KINDS:
-            area = "Photos"
-        else:
+        area = "Figures" if kind in FIGURE_KINDS else "Photos" if kind in PHOTO_KINDS else None
+        if area is None:
             continue
         if limit and stats["entries"] >= limit:
             break
         stats["entries"] += 1
-        payload = _entry_bytes(e)
-        parent = catalog_folders[area]
-        had_folder = e["id"] in existing[area]
-        folder_id = drive.ensure_folder(parent, e["id"], existing=existing[area], dry_run=dry_run)
-        if not had_folder:
-            stats["folders_created"] += 1
-            present: dict[str, dict[str, Any]] = {}
-            existing[area][e["id"]] = {"id": folder_id, "name": e["id"], "mimeType": FOLDER}
-        else:
-            present = drive.list_children(folder_id) if not dry_run else {}
-            # A newer version of the figure: the top level keeps the latest, so the files there
-            # move into v<old>_<date>_<id>/ first (docs/FIGURES_README.md, 2026-10-01).
-            version = int(e.get("version") or 1)
-            old_version = _drive_version(drive, present)
-            if old_version is not None and old_version < version:
-                moved = _archive_version(drive, folder_id, present, old_version, e["id"], dry_run=dry_run)
-                stats["files_archived"] = stats.get("files_archived", 0) + moved
-                present = drive.list_children(folder_id) if not dry_run else {}
-        sub_folders: dict[str, str] = {}
-        for name, data in payload:
-            target = folder_id
-            if "/" in name:
-                sub, name = name.split("/", 1)
-                if "source" in present and sub in ("code", "data"):
-                    stats["files_skipped"] += 1   # older layout already there; the drive is append-only
-                    continue
-                if sub not in sub_folders:
-                    sub_folders[sub] = drive.ensure_folder(folder_id, sub, existing=present, dry_run=dry_run)
-                target = sub_folders[sub]
-            if name in present:
-                stats["files_skipped"] += 1
-                continue
-            drive.upload(target, name, data, _MIME.get(Path(name).suffix.lower(), "application/octet-stream"), dry_run=dry_run)
-            stats["files_uploaded"] += 1
-            stats["bytes"] += len(data)
         index_rows.append({"id": e["id"], "kind": kind, "area": area, "caption": e.get("caption", ""),
                            "topics": " ".join(e.get("topic") or []), "first_used": e.get("first_used"),
                            "last_used": e.get("last_used"), "n_uses": e.get("n_uses"), "vector": e.get("vector")})
+        root, catalog_version = chain[e["id"]]
+        folder, stem = _placement(root, roots, existing[area])
+        other = "Photos" if area == "Figures" else "Figures"
+        if folder not in existing[area] and (folder in existing[other] or e["id"] in existing[other]):
+            area = other                          # already filed under the other area: stay there, no duplicate
+            index_rows[-1]["area"] = area
+            folder, stem = _placement(root, roots, existing[area])
+        # already on the Drive: as its own folder (older layout), as version 1 in its own folder,
+        # or named in one of the folder's records (this layout)
+        if e["id"] in existing[area] and existing[area][e["id"]]["mimeType"] == FOLDER and e["id"] != folder:
+            stats["versions_present"] += 1
+            continue
+        if catalog_version == 1 and folder == e["id"] and folder in existing[area]:
+            stats["versions_present"] += 1
+            continue
+        fid = existing[area][folder]["id"] if folder in existing[area] else None
+        present = drive.list_children(fid) if fid and not fid.startswith("dry-run:") else {}
+        if folder not in synced:
+            synced[folder] = set()
+            for n, f in present.items():
+                if n.endswith(".yaml") and re.fullmatch(r".+-v\d+\.yaml", n):
+                    m = re.search(r'"id": "([^"]+)"', drive.download(f["id"]).decode("utf-8", "replace"))
+                    if m:
+                        synced[folder].add(m.group(1))
+        if e["id"] in synced[folder]:
+            stats["versions_present"] += 1
+            continue
+        # the older layout's dated version subfolders: v<N>_<date>_<name>[-<variant>-version]/
+        variant = stem[len(folder) + 1:] if stem != folder else ""
+        old_sub = re.compile(rf"v{catalog_version}_\d{{4}}-\d\d-\d\d_{re.escape(folder)}" + (rf"-{re.escape(variant)}-version" if variant else ""))
+        if any(old_sub.fullmatch(n) and f["mimeType"] == FOLDER for n, f in present.items()):
+            stats["versions_present"] += 1
+            continue
+        have = [int(m.group(1)) for n in present if (m := re.fullmatch(re.escape(stem) + r"-v(\d+)\.[A-Za-z0-9]+", n))]
+        version = max(have + [next_free.get((folder, stem), 1) - 1]) + 1     # the next free Drive number
+        next_free[(folder, stem)] = version + 1
+        payload = _entry_bytes(e)
+        if not any(n.rsplit(".", 1)[0] == e["id"] for n, _ in payload if "/" not in n):
+            continue                               # no figure file to upload
+        stats["versions_new"] += 1
+        folder_id = drive.ensure_folder(area_ids[area], folder, existing=existing[area], dry_run=dry_run)
+        if folder not in existing[area]:
+            stats["folders_created"] += 1
+            existing[area][folder] = {"id": folder_id, "name": folder, "mimeType": FOLDER}
+            plan.append(f"{area}/{folder}/  (new folder)")
+        subs: dict[str, dict[str, Any]] = {}
+        sub_ids: dict[str, str] = {}
+        files, code, data = [], [], []
+        uploads: list[tuple[str, str, bytes]] = []          # (sub or "", name, bytes)
+        for name, blob in payload:
+            vname = _versioned(name, stem, e["id"], version)
+            sub, base = (vname.split("/", 1) if "/" in vname else ("", vname))
+            if sub and sub not in subs:
+                sid = present[sub]["id"] if sub in present else None
+                subs[sub] = drive.list_children(sid) if sid and not sid.startswith("dry-run:") else {}
+            here = subs[sub] if sub else present
+            if sub == "data" and base in here:
+                if here[base].get("md5Checksum") == hashlib.md5(blob).hexdigest():
+                    data.append((vname, hashlib.sha256(blob).hexdigest()))
+                    stats["files_skipped"] += 1
+                    continue
+                q = Path(base)                       # changed data never replaces: a new name
+                base = f"{q.stem}-v{version}{q.suffix}"
+                vname = f"data/{base}"
+            if base in here:
+                stats["files_skipped"] += 1
+                continue
+            uploads.append((sub, base, blob))
+            if sub == "code":
+                code.append(vname)
+            elif sub == "data":
+                data.append((vname, hashlib.sha256(blob).hexdigest()))
+            elif base != "figure.yaml":
+                files.append(base)
+        uploads.append(("", f"{stem}-v{version}.yaml", _record(e, stem, version, f"{area}/{folder}", files, code, data,
+                                                               catalog_version=catalog_version)))
+        if version != catalog_version:
+            plan.append(f"   ({e['id']}: catalog version {catalog_version} -> Drive version {version})")
+        for sub, base, blob in uploads:
+            target = folder_id
+            if sub:
+                if sub not in sub_ids:
+                    sub_ids[sub] = drive.ensure_folder(folder_id, sub, existing=present, dry_run=dry_run)
+                target = sub_ids[sub]
+            drive.upload(target, base, blob, _MIME.get(Path(base).suffix.lower(), "application/octet-stream"), dry_run=dry_run)
+            plan.append(f"{area}/{folder}/{sub + '/' if sub else ''}{base}")
+            stats["files_uploaded"] += 1
+            stats["bytes"] += len(blob)
     # dated index, one per area, never overwritten
-    for area, parent in catalog_folders.items():
+    for area, parent in area_ids.items():
         rows = [r for r in index_rows if r["area"] == area]
         if not rows:
             continue
@@ -357,5 +443,7 @@ def sync(kinds: set[str] | None, ids: set[str] | None, limit: int | None, dry_ru
         w.writeheader()
         w.writerows(rows)
         drive.upload(parent, name, buf.getvalue().encode(), "text/csv", dry_run=dry_run)
+        plan.append(f"{area}/{name}")
     stats["dry_run"] = dry_run
+    stats["plan"] = plan
     return stats

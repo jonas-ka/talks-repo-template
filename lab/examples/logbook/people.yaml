@@ -1,0 +1,5 @@
+# Made-up people. handle: lower case, used in file names and `authors`; github: the login that
+# submits pull requests; role admin may submit on behalf of others and change the tooling.
+- {handle: aa, name: A. Author, github: a-author-example, email: a.author@example.org}
+- {handle: bb, name: B. Builder, github: b-builder-example, email: b.builder@example.org}
+- {handle: cc, name: C. Chair, github: c-chair-example, email: c.chair@example.org, role: admin}

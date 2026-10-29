@@ -15,6 +15,9 @@ figure notebook; the guides). Public repository; consumers pull it as a git subt
   prefix and API-key patterns.
 - **A change compiles the examples** (`make check`: every `examples/*.typ` with
   `--pdf-standard ua-1`) before it is committed; a tag is made only on a green CI.
+- **A change to `logbook/` runs `make logbook`** (the tests and the example book through the
+  checker; needs uv). The log-book format is public: no entries, people or data of the lab, only
+  the made-up example in `examples/logbook/`.
 - **Versions are tags `vYYYY.MM.N`**; `VERSION` holds the current one; `CHANGELOG.md` gets a
   line per change under the next tag. Consumers update deliberately by tag, never silently.
 - **Accessibility stays built in**: every theme sets document title and language, figures
@@ -38,6 +41,12 @@ figure notebook; the guides). Public repository; consumers pull it as a git subt
 `lab/`), `jonas-ka/phys206-mechanics`, `jonas-ka/phys689-nucl-exp`, `jonas-ka/karthein-cv`,
 `jonas-ka/cyclotron-talks` (private; notes theme for the host guidelines, since v2026.10.2),
 and, once wired, `fastsims` and `ion-optics-surrogate` (lab notebook template, figure README).
+**Colleagues outside the lab also use this repository** for their own projects (since October
+2026), pinned by tag from the public GitHub. So a tag must not break documents that compiled
+under the previous one (deprecate, don't remove; say it in `CHANGELOG.md`), and defaults, guides
+and examples must work without the lab's Drive, GitHub organisation or people; lab-specific
+behaviour is opt-in. The log-book tooling follows this too: standalone by default, connected to
+the lab's private central log book (`lab-logbook`) only when configured.
 **After tagging, run `scripts/propagate.sh <tag>`** on the author's machine: it pulls the tag
 into every consumer clone under `~/Projects`, runs that repository's build check, commits and
 pushes; a failing check leaves the pull committed but unpushed and says so. Each consumer runs

@@ -299,6 +299,8 @@ def generate_cmd(
         typer.echo(f"  {line}")
     for p in r["asset_problems"]:
         typer.echo(f"  asset problem: {p}")
+    for line in r.get("widget_snapshots", []):
+        typer.echo(f"  {line}")
     if r["updates_since"]:
         typer.echo(f"  {len(r['updates_since'])} update(s) since the last talk on these topics; see report.md")
     typer.echo(f"Compiled: {r['compiled']} ({r['pages']} pages) -> {r.get('pdf')}; HTML: {r.get('html')}")
@@ -315,12 +317,15 @@ def html_cmd(
     handout: Annotated[bool, typer.Option(help="One slide per page, no pause steps.")] = False,
 ) -> None:
     """Export a deck as a self-contained HTML slideshow (animated GIFs keep playing)."""
-    from talks_repo import html_export
+    from talks_repo import html_export, widget_snapshot
 
     p = Path(slug)
     main = p.resolve() if p.suffix == ".typ" else (TALKS_YAML.parent / "talks" / slug / "main.typ")
     out = main.with_name(("handout" if handout else "index") + ".html")
-    r = html_export.export_html(main, out, handout=handout, title=slug)
+    inputs, log = widget_snapshot.refresh(main, handout)
+    for line in log:
+        typer.echo(f"  {line}")
+    r = html_export.export_html(main, out, handout=handout, title=slug, inputs=inputs)
     typer.echo(f"{out.relative_to(TALKS_YAML.parent)}: {r['slides']} slides, {r['bytes']/1e6:.1f} MB, {r['gif_embeds']} GIF embeds")
 
 
@@ -424,13 +429,15 @@ def sync_drive_cmd(
     limit: Annotated[int | None, typer.Option(help="Stop after this many entries.")] = None,
     dry_run: Annotated[bool, typer.Option(help="List what would be created; write nothing.")] = False,
 ) -> None:
-    """Mirror catalog entries into LabName/Figures|Photos/_catalog on the shared drive (append-only)."""
+    """Mirror catalog entries into LabName/Figures|Photos on the shared drive: versioned names, create-only."""
     from talks_repo import drive_sync
 
     s = drive_sync.sync(set(kind) if kind else None, set(talk_id) if talk_id else None, limit, dry_run)
-    typer.echo(f"{'DRY RUN: ' if dry_run else ''}{s['entries']} entries; {s['folders_created']} folders created, "
-               f"{s['files_uploaded']} files uploaded ({s['bytes']/1e6:.1f} MB), {s['files_skipped']} already present"
-               + (f", {s['files_archived']} files moved into version subfolders." if s.get("files_archived") else "."))
+    for line in s["plan"]:
+        typer.echo(("would create " if dry_run else "created ") + line)
+    typer.echo(f"{'DRY RUN: ' if dry_run else ''}{s['entries']} entries: {s['versions_new']} new versions, "
+               f"{s['versions_present']} already on the Drive; {s['folders_created']} folders, "
+               f"{s['files_uploaded']} files ({s['bytes']/1e6:.1f} MB), {s['files_skipped']} already present. Nothing moved or overwritten.")
 
 
 sources_app = typer.Typer(help="Figure sources: notebooks and scripts on Drive -> shared drive, with data.")

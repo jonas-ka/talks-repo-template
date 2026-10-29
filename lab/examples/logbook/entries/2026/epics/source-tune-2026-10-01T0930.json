@@ -1,0 +1,10 @@
+{
+  "format": "lab-epics-snapshot/1",
+  "group": "source-tune",
+  "taken": "2026-10-01T09:31:12-05:00",
+  "pvs": [
+    {"name": "SRC:HV_Offset", "value": 3000.0, "unit": "V", "timestamp": "2026-10-01T09:31:11-05:00", "severity": "NO_ALARM"},
+    {"name": "SRC:Extract", "value": -120.0, "unit": "V", "timestamp": "2026-10-01T09:31:11-05:00", "severity": "NO_ALARM"},
+    {"name": "SRC:Laser_Energy", "value": 1.2, "unit": "mJ", "timestamp": "2026-10-01T09:31:10-05:00", "severity": "NO_ALARM"}
+  ]
+}

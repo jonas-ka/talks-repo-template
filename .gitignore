@@ -58,11 +58,14 @@ assets/figures/*.svg
 !assets/figures/plot-speed-comparisons-legacy-FastSims-Surrogate-M4Pro-H200-poster-v9.svg
 !assets/figures/plot-speed-comparisons-legacy-FastSims-Surrogate-M4Pro-H200-v10.svg
 !assets/figures/plot-speed-comparisons-legacy-FastSims-Surrogate-M4Pro-H200-poster-v10.svg
+!assets/figures/plot-speed-comparisons-legacy-FastSims-M4Pro-H200-step1-v10.svg
 
 # Build outputs and intermediates (PPTX exports are covered by *.pptx above)
 talks/**/*.pdf
 talks/**/*.html
 talks/**/png/
+# Widget snapshots for the PDF, re-rendered by `talks generate` / `talks html`
+talks/**/generated/
 build/
 work/
 
@@ -89,3 +92,6 @@ spikes/**/*.svg
 talks/**/frozen.pdf
 !assets/figures/plot-ion-optics-beam-at-detector-planes-poster-v5.svg
 !assets/figures/plot-ion-optics-beam-at-detector-planes-poster-v6.svg
+!assets/figures/plot-ion-optics-beam-at-detector-planes-poster-v7.svg
+!assets/figures/plot-speed-comparisons-left-comsol-v10.svg
+!assets/figures/plot-speed-comparisons-left-fastsims-v10.svg

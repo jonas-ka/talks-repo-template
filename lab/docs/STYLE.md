@@ -45,7 +45,8 @@ One figure per slide, minimal text, no bullet walls; paragraph and bullet gaps o
 at body size; the body fills the page (no blank band above the footer, columns ending at
 similar heights); figures and captions aligned with the text column. Header: title, mark,
 hairline rule; footer: hairline rule, e-mail, citation in teal (`#007682` at body size),
-sponsor logos only where a block asks for them, page number. Tagged PDF (UA-1) always;
+sponsor logos only where a block asks for them, page number. A citation appears with the step
+that shows what it cites (`footer-citation: (("2-", [...]),)`), not on every step of the slide. Tagged PDF (UA-1) always;
 every figure and equation has alt text.
 
 Running text (paragraphs, bullets, column text) is **justified**; letter spacing takes part of
@@ -55,7 +56,8 @@ and tables are not justified. **Text budget:** a slide with more than 120 words 
 (type of 11.5 pt and up; captions and figure labels do not count) is text-heavy and loses at
 least 10 % of its words in the layout pass; `talks layout` counts them and names the target.
 The **title slide** says what built the deck, small at the bottom right: the template version
-(`VERSION`) and the git revision of the repository it was compiled from (`--input rev=`).
+(`VERSION`) and the git revision of the repository it was compiled from (`--input rev=`), as
+"v2026.10.37 · git 670dc43", without the word "template".
 
 ## Posters
 
@@ -83,7 +85,11 @@ sidecar (`talks alts`) for plain `$...$`; the HTML export carries MathML.
 (then black, grey), black bold axis labels and regular ticks, a full box of four spines, no
 grid by default, legends inside without a frame, 15 pt labels and 13 pt ticks at 6×4 in (one
 size for slides and papers; posters get their own variant). The rules that a style file cannot
-enforce: one colour per *thing* kept across panels and figures; annotations in black with the colour
+enforce: one colour per *thing* kept across panels and figures; physical quantities in italics
+(*N*, *Z*, *μ*; units and element symbols upright), in figures as on slides; annotations in black with the colour
 on the marker or line; **text never on data** (labels in empty regions, end labels beside the
 curve end, else a leader line); `plt.subplots` for every figure; save PDF + SVG + PNG
-(300 dpi) from the same figure object with `bbox_inches="tight"`; captions one line.
+(300 dpi) from the same figure object, with `labfig.save` (`matplotlib/labfig.py`): versioned
+file names (`-vN`, never overwritten), the information strip below the figure (author, dates,
+version, template, data fingerprint, Drive folder; cut off in documents, automatically by the
+themes) and a record per version; captions one line.

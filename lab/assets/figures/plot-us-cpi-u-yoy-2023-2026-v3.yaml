@@ -1,0 +1,14 @@
+# Written by labfig.save (lab-templates matplotlib/labfig.py). Never edited or overwritten:
+# a changed figure is the next version, with its own record.
+figure: "plot-us-cpi-u-yoy-2023-2026"
+version: 3
+files: ["plot-us-cpi-u-yoy-2023-2026-v3.pdf", "plot-us-cpi-u-yoy-2023-2026-v3.svg"]
+created: "2026-10-01"
+author: "J. Karthein"
+modified: "2026-10-13"
+modified_by: "J. Karthein"
+saved: "2026-10-13T13:55:15-05:00"
+template: {"version": "v2026.10.10", "commit": "8e3dd1d", "url": "https://github.com/jonas-ka/lab-templates/tree/8e3dd1dc22593fb7582ee53acfc2a93692e6b2e4"}
+code: {"file": "assets/sources/cpi-u-yoy/code/plot_cpi.py", "repository": "https://github.com/jonas-ka/lab-templates", "commit": "8e3dd1dc22593fb7582ee53acfc2a93692e6b2e4", "copy": null}
+data: {"fingerprint": "sha256:b61ae4cfddcdfc1253bdf6983072b90973ea85503b75ee7ae1ee5b07fc3ff4e7", "id": "BLS CUUR0000SA0, retrieved 2026-10-01", "files": [{"path": "../sources/cpi-u-yoy/data/CUUR0000SA0_2022-2026_bls-api.json", "sha256": "a686db988cfffdace14f931407550e44d40dc8abcb30ed582923002ad3881c3a"}]}
+info_strip_in: 0.4

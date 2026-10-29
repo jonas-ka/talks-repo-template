@@ -1,11 +1,15 @@
-"""US CPI-U, 12-month percent change, monthly (figure `plot-us-cpi-u-yoy-2023-2026`, version 2).
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["matplotlib==3.11.2", "numpy==2.5.4"]
+# ///
+"""US CPI-U, 12-month percent change, monthly (figure `plot-us-cpi-u-yoy-2023-2026`, version 3).
 
 Data: BLS series CUUR0000SA0 (CPI-U, all items, US city average, not seasonally adjusted),
 public API v2, pulled 2026-10-01 and kept next to this script as
 `../data/CUUR0000SA0_2022-2026_bls-api.json`. Run from anywhere (`--fetch` pulls again):
 
-    uv run --with matplotlib --with numpy python plot_cpi.py            # from the saved JSON
-    uv run --with matplotlib --with numpy python plot_cpi.py --fetch    # POST to the BLS API v2
+    uv run plot_cpi.py            # from the saved JSON (dependencies: the inline metadata above)
+    uv run plot_cpi.py --fetch    # POST to the BLS API v2
 
 The 12-month change is (CPI_m / CPI_{m-12} - 1) x 100. A month without a published index
 (October 2025, the lapse in appropriations) is left as a gap, and so is every 12-month value
@@ -14,10 +18,13 @@ that would need it; nothing is interpolated.
 Style: the lab style file (`themes/karthein.mplstyle`: STIX Two Text, the lab colours, full
 black box, 15 pt bold labels and 13 pt ticks at 6 x 4 in), so the figure serves slides and
 papers alike; the rules in docs/FIGURES_README.md for what a style file cannot set (legend
-inside without a frame, black annotations in empty regions, text never on data). Output, from
-the same figure object: PDF (editable text) and SVG in assets/figures/, the SVG with text as
-outlines so that it looks the same wherever Typst renders it; `--png` adds a 300 dpi PNG.
-Version 1 (2026-10-01, 4.8 x 2.9 in, 10 pt type, title and grid) is in the git history.
+inside without a frame, black annotations in empty regions, text never on data). Saved with
+`matplotlib/labfig.py`: PDF (editable text) and SVG in assets/figures/ from the same figure
+object, the SVG with text as outlines so that it looks the same wherever Typst renders it, and
+the information strip below the figure (catalog `info_strip: 0.4`, cut off by the themes);
+`--png` adds a 300 dpi PNG.
+Version 1 (2026-10-01, 4.8 x 2.9 in, 10 pt type, title and grid) and version 2 (2026-10-13, the
+lab style, no strip) are in the git history. A visual change is version 4: raise VERSION.
 """
 
 from __future__ import annotations
@@ -30,13 +37,16 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[4] / "matplotlib"))
+import labfig  # noqa: E402  (lab-templates/matplotlib/labfig.py)
+
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]     # the lab-templates root (lab/ in a consumer)
 DATA = HERE.parent / "data" / "CUUR0000SA0_2022-2026_bls-api.json"
 OUT = ROOT / "assets" / "figures" / "plot-us-cpi-u-yoy-2023-2026"
-STYLE = ROOT / "themes" / "karthein.mplstyle"
 START = (2023, 9)          # first month shown
 RAISE = 3.0                # proposed raise, percent
+VERSION = 3                # the figure's version; files <name>-v3.*, never overwritten
 
 BLUE, RED = "#00A2FF", "#FF2D55"   # palette.yaml plot colours: the data, the raise
 
@@ -81,7 +91,7 @@ def main() -> None:
     for k, v in zip(axis, yv):
         print(f"{k[0]}-{k[1]:02d}  {'  gap' if np.isnan(v) else f'{v:5.2f}'}")
 
-    plt.style.use(STYLE)
+    labfig.style()
     fig, ax = plt.subplots(figsize=(6, 4))
     ax.plot(x, yv, "o-", color=BLUE, label="CPI-U, 12-month change")
     ax.axhline(RAISE, color=RED, lw=1.4, ls=(0, (5, 3)), label=f"Proposed raise ({RAISE:.0f} %)")
@@ -101,13 +111,13 @@ def main() -> None:
     ax.set_xlim(x[0] - 0.08, x[-1] + 0.72)   # room for the end label beside the curve
     ax.set_ylim(1.8, 4.9)
 
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(OUT.with_suffix(".pdf"))
-    with plt.rc_context({"svg.fonttype": "path"}):
-        fig.savefig(OUT.with_suffix(".svg"))
-    if "--png" in sys.argv:
-        fig.savefig(OUT.with_suffix(".png"), dpi=300)
-    print("wrote", OUT.with_suffix(".pdf"), "and .svg")
+    formats = ("pdf", "svg", "png") if "--png" in sys.argv else ("pdf", "svg")
+    # code=None: the script is in git (the record notes its commit), so no copy next to the figure
+    out = labfig.save(fig, OUT, version=VERSION, author="J. Karthein", created="2026-10-01", modified_by="J. Karthein",
+                      modified="2026-10-13", data=[DATA], data_id="BLS CUUR0000SA0, retrieved 2026-10-01",
+                      code=None, formats=formats,
+                      raw=["https://api.bls.gov/publicAPI/v2/timeseries/data/ (series CUUR0000SA0)"])
+    print("wrote", out, "+", ", ".join(formats), f"(information strip: bottom {labfig.STRIP_IN} in)")
 
 
 if __name__ == "__main__":

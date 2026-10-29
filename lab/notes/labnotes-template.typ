@@ -61,12 +61,13 @@
   title: "Log book",
   project: none,
   subproject: none,
-  author: "Your Name",
+  author: none,                      // who writes the log book (required)
   affiliation: "Your Institute, Your University",
   started: none,
   summary: none,
   body,
 ) = {
+  assert(author != none, message: "labnotes: give the log book's author, e.g. author: \"A. Author\"")
   set document(title: title, author: author)
   set page(
     paper: "us-letter",
@@ -106,7 +107,7 @@
     #set text(10pt, weight: "regular", fill: lab-grey)
     #if project != none [*Project:* #project]
     #if subproject != none [ #h(0.6em) *Subproject:* #subproject] \
-    *Author:* #author, #affiliation
+    *Author:* #author#if affiliation not in (none, "") [, #affiliation]
     #if started != none [ \ *Log started:* #started]
   ]
   if summary != none {

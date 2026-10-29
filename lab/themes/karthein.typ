@@ -26,6 +26,7 @@
 
 // Palette, panels, radii, `lifted`, `caption-line`: shared with the poster and notes themes.
 #import "tokens.typ": *
+#import "figure-strip.typ": strip-image, entry-strip, resolve-strip
 // Spoken math: `speak(body)` drafts an equation's alt text; `eq(alt: auto)` uses it.
 #import "speak-math.typ": speak, apply-alts, math-body, spoken-eq
 
@@ -41,34 +42,59 @@
 #let template-version = read("../VERSION").trim()
 #let build-rev = sys.inputs.at("rev", default: none)
 #let build-line = {
-  [Template #template-version]
+  [#template-version]
   if build-rev != none [ · git #build-rev]
 }
 
 #let logos = (
-  tamu: "/themes/logos/tamu-mark.png",
+  tamu: "/themes/logos/tamu-box.svg",   // the official maroon box (marcomm.tamu.edu logo downloads)
   cyclotron: "/themes/logos/cyclotron-institute.png",
   lab: "/themes/logos/karthein-lab.png",
   sponsors: "/themes/logos/doe-genesis.png",
 )
 
 // ---------------------------------------------------------------- helpers
+// Footer citations (the author, 2026-10-23): one size everywhere, every reference linked (DOI, arXiv, repository or
+// web page), references kept apart by a spaced middle dot, words as short as possible
+// ("Data: Nörtershäuser (TU Darmstadt)", "Code: nuclear-chart-plotter"). A citation never shrinks:
+// one longer than `cite-max` stops the build.
+#let cite-size = 10pt
+#let cite-max = (logos: 440pt, plain: 540pt)   // centred between the email and the sponsor logos or page number
+#let cite-sep = [#h(0.75em)·#h(0.75em)]
 /// A citation for the footer centre: #cite-line[Rickey ++ PRA 113, 042824 (2026)]
-#let cite-line(body) = text(fill: link-text, size: 11pt, body)
+#let cite-line(body) = text(fill: link-text, size: cite-size, body)
+/// Several references, kept apart: #refs(doi("10.1103/...")[Cao ++ PRC 102, 024311 (2020)], [...])
+#let refs(..items) = items.pos().join(cite-sep)
+/// A reference linked to its DOI: #doi("10.1038/nature12073")[Gaffney ++ Nature 497, 199 (2013)]
+#let doi(id, body) = link("https://doi.org/" + id, body)
+/// A preprint linked to arXiv: #arxiv("2605.09139")[Brinson ++ arXiv:2605.09139]
+#let arxiv(id, body) = link("https://arxiv.org/abs/" + id, body)
+// the words of a piece of content, for messages
+#let plain(c) = if type(c) == str { c } else if type(c) != content { "" } else if c.has("text") { plain(c.text) } else if c.has("children") { c.children.map(plain).join() } else if c.has("body") { plain(c.body) } else if c.func() == [ ].func() { " " } else { "" }
 
 /// A figure with mandatory alt text, from the catalog:
 ///   #fig("/assets/figures/x.svg", alt: "...", width: 60%)
 /// It never grows taller than `max-height` (the slide body under the header is ~300pt),
 /// so a tall figure scales down instead of pushing the slide onto a second page.
-#let fig(path, alt: none, width: 100%, max-height: 290pt, caption: none) = {
+/// `strip`: the height of an information strip below the figure (labfig.py), cut off here;
+/// `auto` finds it in the file (SVG), `0pt` keeps the file whole.
+/// `photo`: the caption follows the photo rule (`captions` in tokens.typ); `caption-on` overrides it.
+#let fig(path, alt: none, width: 100%, max-height: 290pt, caption: none, strip: auto, photo: false, caption-on: auto) = {
+  let strip = resolve-strip(path, strip)
   assert(alt != none, message: "every figure needs alt text (catalog `alt`)")
   // No `figure` element: slides need no figure numbers, and numbered figures inside
   // pause steps keep Typst's layout from converging.
   block(width: width, {
-    box(width: 100%, height: max-height, image(path, width: 100%, height: 100%, fit: "contain", alt: alt))
+    box(width: 100%, height: max-height, if strip > 0pt {
+      align(center + horizon, strip-image(path, strip: strip, alt: alt, width: 100%, height: 100%))
+    } else {
+      image(path, width: 100%, height: 100%, fit: "contain", alt: alt)
+    })
     if caption != none {
-      v(2pt)
-      align(center, text(size: 11pt, style: "italic", fill: muted, caption))
+      context if caption-shown(photo, caption-on) {
+        v(2pt)
+        align(center, text(size: 11pt, style: "italic", fill: muted, caption))
+      }
     }
   })
 }
@@ -119,13 +145,17 @@
 }
 
 /// A catalog figure: #cat-fig("plot-charge-radii-oxygen-isotopes", width: 60%)
-#let cat-fig(id, width: 100%, max-height: 290pt, caption: none) = {
+/// A photo (catalog `kind: photo`) takes its catalog caption unless given one; `caption: none` leaves it out.
+#let cat-fig(id, width: 100%, max-height: 290pt, caption: auto, caption-on: auto) = {
   let e = asset(id)
   assert(id not in superseded, message: "asset " + id + " is superseded; use its successor")
+  let photo = e.at("kind", default: none) == "photo"
+  let caption = if caption == auto { if photo { e.at("caption", default: none) } } else { caption }
   let path = e.at("svg", default: none)
   if path == none { path = e.at("file", default: none) }
   assert(path != none, message: "asset " + id + " has no file; run `talks generate` to materialize it")
-  fig("/assets/" + path, alt: e.alt, width: width, max-height: max-height, caption: caption)
+  fig("/assets/" + path, alt: e.alt, width: width, max-height: max-height, caption: caption, strip: entry-strip(e),
+    photo: photo, caption-on: caption-on)
 }
 
 /// A catalog equation (LaTeX rendered through mitex, alt from the catalog):
@@ -185,27 +215,27 @@
   v(6pt)
 }
 
+/// `footer-citation`: content, shown on every step of the slide, or a list of `(steps, content)`
+/// pairs (steps as in `only`: 2, "2-", "1-3"), so a citation appears with the step that shows
+/// what it cites (the author, 2026-10-20). Matching citations on one step are joined with `cite-sep`.
 #let slide(title: auto, footer-citation: none, ..args) = touying-slide-wrapper(self => {
   let info = self.info
   let header = none
+  let citation-at(sub) = if type(footer-citation) == array {
+    let hits = footer-citation.filter(((steps, _)) => utils.check-visible(sub, steps)).map(((_, c)) => c)
+    if hits.len() > 0 { hits.join(cite-sep) }
+  } else { footer-citation }
   // Footer: a thin rule like the header, then email left, citation centred, sponsor logos
   // and page number right. Everything is placed at fixed positions so nothing moves
-  // from slide to slide; the page number sits in a fixed-width box.
-  let footer = pad(x: 18pt, stack(
+  // from slide to slide; the page number sits in a fixed-width box. A function of `self`, so
+  // Touying draws it per step (`self.subslide`).
+  let footer(self) = pad(x: 18pt, stack(
     dir: ttb,
     spacing: 4pt,
     line(length: 100%, stroke: 0.6pt + band.darken(20%)),
     box(width: 100%, height: 16pt, {
-      place(left + horizon, text(size: 11pt, weight: "bold", fill: ink, utils.call-or-display(self, info.email)))
-      if footer-citation != none {
-        // A long citation is scaled down rather than allowed to run into the email
-        // on the left or the sponsor logos and page number on the right.
-        place(center + horizon, context {
-          let c = cite-line(footer-citation)
-          let w = measure(c).width
-          let maxw = 420pt
-          if w > maxw { scale(maxw / w * 100%, reflow: true, c) } else { c }
-        })
+      if info.at("email", default: none) != none {
+        place(left + horizon, text(size: 11pt, weight: "bold", fill: ink, utils.call-or-display(self, info.email)))
       }
       place(right + horizon, box(width: 24pt, align(right, context text(size: 11pt, weight: "bold", fill: ink, utils.slide-counter.display()))))
       if self.store.sponsors {
@@ -215,9 +245,25 @@
       }
     }),
   ))
+  // The citation is slide content, not part of the footer: the footer is a PDF artifact (not
+  // read aloud, and PDF/UA-1 refuses links in it). It is placed at the footer's centre line,
+  // 30.6 pt below the body, always at `cite-size`: one too long for `cite-max` fails the build.
+  let citation-box(self) = {
+    let citation = citation-at(self.subslide)
+    if citation != none {
+      place(bottom + center, dy: 30.6pt, box(height: 16pt, align(horizon, context {
+        let c = cite-line(citation)
+        let w = measure(c).width
+        let maxw = if self.store.sponsors and sponsor-state.get() { cite-max.logos } else { cite-max.plain }
+        assert(w <= maxw, message: "footer citation " + str(calc.round(w.pt())) + " pt wide, over "
+          + str(maxw.pt()) + " pt; shorten it: " + plain(citation))
+        c
+      })))
+    }
+  }
   // The header goes into the per-subslide preamble: it repeats on every pause step and
   // leaves positional bodies free for Touying's column composer.
-  let preamble(self) = if title == auto {
+  let preamble(self) = citation-box(self) + if title == auto {
     // Touying hands the slide its source headings; the `==` one is the slide title.
     let hs = self.at("headings", default: ()).filter(h => h.depth == 2)
     if hs.len() > 0 { slide-header(hs.last().body) } else { none }
@@ -242,18 +288,20 @@
           // The deck title is the level-1 heading, so the tagged outline starts correctly.
           heading(level: 1, outlined: false, info.title)
           h1-seen.update(true)
-          v(28pt)
-          text(size: 14pt, weight: "bold", fill: ink, info.author + [ -- ] + info.institution)
+          v(40pt)
+          // the presenter's honorific (default the author's); `honorific: none` in config-info for other presenters
+          let hon = info.at("honorific", default: [Prof. Dr. ])
+          text(size: 14pt, weight: "bold", fill: ink, (if hon != none { hon }) + info.author + [ -- ] + info.institution)
           v(10pt)
           text(size: 13pt, style: "italic", fill: ink, info.date + if "event" in info and info.event != none { [ -- ] + info.event })
         },
-        align(bottom + right, stack(
-          dir: ttb, spacing: 8pt,
-          image(logos.cyclotron, width: 180pt, alt: "Your University Your Institute logo"),
-          image(logos.lab, width: 130pt, alt: "Karthein Lab, Your University logo"),
-        )),
+        box(width: 180pt),   // keeps the title clear of the logo below
       )
+      // Your Institute logo on the bottom edge of the band, the lab logo at the top of the
+      // white area beneath it (the author, 2026-10-20).
+      place(bottom + right, image(logos.cyclotron, width: 180pt, alt: "Your University Your Institute logo"))
     })
+    place(top + right, dx: -18pt, dy: 58% + 10pt, image(logos.lab, width: 130pt, alt: "Karthein Lab, Your University logo"))
     if contents.len() > 0 {
       block(inset: (x: 18pt, top: 22pt), {
         text(size: 15pt, weight: "bold", [Content:])
@@ -269,7 +317,9 @@
 })
 
 // ---------------------------------------------------------------- theme
-#let karthein-theme(aspect-ratio: "16-9", handout: false, sponsors: false, email: [you\@example.edu], ..args, body) = {
+/// `email`: the presenter's address, shown at the left of every slide footer (none: no address).
+/// It can also be given as `config-info(email: ...)`.
+#let karthein-theme(aspect-ratio: "16-9", handout: false, sponsors: false, email: none, ..args, body) = {
   set document(title: "", author: "")  // overridden by the deck via config-info below
   set text(font: ("STIX Two Text", "Helvetica Neue"), size: 14pt, fill: ink, lang: "en")
   show math.equation: set text(font: "STIX Two Math")

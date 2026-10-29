@@ -31,4 +31,16 @@
 }
 
 /// One-line caption under a figure (11 pt italic, muted), never smaller.
-#let caption-line(body) = align(center, text(size: 11pt, style: "italic", fill: muted, body))
+/// The rule (the author, 2026-10-23): photos get a caption, plots and graphics do not (`"photos"`, the default);
+/// `#captions(true)` shows every caption, `#captions(false)` none. `on: true | false` makes one caption
+/// an exception to the deck's setting.
+#let caption-state = state("captions", "photos")
+#let captions(on) = caption-state.update(on)
+/// Whether a caption shows (needs `context`).
+#let caption-shown(photo, on) = if on != auto { on } else {
+  let mode = caption-state.get()
+  if mode == "photos" { photo } else { mode }
+}
+#let caption-line(body, photo: false, on: auto) = context if caption-shown(photo, on) {
+  align(center, text(size: 11pt, style: "italic", fill: muted, body))
+}

@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jonas-ka/lab-templates/logbook/entry.schema.json",
+  "title": "Log-book entry header",
+  "description": "The YAML header of one log-book entry (a Markdown file). Only date, authors, kind, project and title are required; everything else is optional, so a quick note stays quick. Paths are relative to the entry's folder (entries/YYYY/).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["date", "authors", "kind", "project", "title"],
+  "$defs": {
+    "date": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "entry_id": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}-\\d{4}-[a-z0-9]+-[a-z0-9][a-z0-9-]*$"},
+    "anchored_id": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}-\\d{4}-[a-z0-9]+-[a-z0-9][a-z0-9-]*#[A-Za-z][\\w-]*$"},
+    "handle": {"type": "string", "pattern": "^[a-z0-9]+$"},
+    "rel_path": {"type": "string", "pattern": "^(?!/)(?!.*\\.\\./)[^\\\\]+$"},
+    "strings": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true}
+  },
+  "properties": {
+    "date": {"$ref": "#/$defs/date", "description": "The day of the work (the author's statement)."},
+    "time": {"type": "string", "pattern": "^\\d{2}:\\d{2}$", "description": "Local time, HH:MM; the same as HHMM in the file name."},
+    "tz": {"type": "string", "description": "IANA time zone, e.g. America/Chicago."},
+    "authors": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 1, "uniqueItems": true,
+                "description": "First = the person submitting. Handles from people.yaml in a central book; free names in a standalone book."},
+    "with": {"type": "string", "description": "Tool that assisted, e.g. claude: shown as '(with assistance from Claude Code)'."},
+    "kind": {"type": "string", "pattern": "^[a-z][a-z-]*$"},
+    "project": {"type": "string", "minLength": 1},
+    "subproject": {"type": "string", "minLength": 1},
+    "also": {"$ref": "#/$defs/strings", "description": "Other projects this entry belongs to."},
+    "apparatus": {"$ref": "#/$defs/strings"},
+    "title": {"type": "string", "minLength": 3, "maxLength": 200},
+    "tags": {"$ref": "#/$defs/strings"},
+    "attendees": {"$ref": "#/$defs/strings", "description": "kind: meeting."},
+    "runs": {"$ref": "#/$defs/strings", "description": "DAQ run ids, archiver time windows, cluster job ids."},
+    "parameters": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["name", "value"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "value": {"type": ["number", "string", "boolean"]},
+          "unit": {"type": "string"},
+          "note": {"type": "string"}
+        }
+      }
+    },
+    "valid_until": {"anyOf": [{"$ref": "#/$defs/date"}, {"type": "null"}], "description": "kind: calibration | maintenance."},
+    "corrects": {"anyOf": [{"$ref": "#/$defs/entry_id"}, {"type": "null"}]},
+    "redacts": {"anyOf": [{"$ref": "#/$defs/entry_id"}, {"type": "null"}]},
+    "level": {"enum": [2, 3, null], "description": "kind: redaction (docs/REDACTION.md of the central book)."},
+    "related": {"type": "array", "items": {"$ref": "#/$defs/entry_id"}, "uniqueItems": true},
+    "resolves": {"type": "array", "items": {"$ref": "#/$defs/anchored_id"}, "uniqueItems": true,
+                 "description": "Open issue or todo blocks of earlier entries that this entry settles: <entry-id>#<block-id>."},
+    "order": {"type": ["string", "integer"], "description": "kind: order. The order's number or name."},
+    "items": {"type": "array", "minItems": 1, "description": "kind: order. What was ordered; an item without `arrived` is the open item #item-<n>.",
+      "items": {"type": "object", "additionalProperties": false, "required": ["n", "item"],
+        "properties": {
+          "n": {"type": "integer", "minimum": 1},
+          "item": {"type": "string", "minLength": 1},
+          "qty": {"type": ["number", "string"]},
+          "unit_cost": {"type": ["number", "string"]},
+          "total": {"type": ["number", "string"]},
+          "info": {"type": "string", "description": "A quote's file name, a link, or a note."},
+          "vendor": {"type": "string", "description": "Where it was bought; without it, the view takes the vendor from the quote's name or the link."},
+          "ordered": {"type": "string"},
+          "arrived": {"anyOf": [{"const": true}, {"type": "string"}], "description": "Set when the item had arrived before the entry was written (true, or the date)."}
+        }}},
+    "priority": {"type": "object", "propertyNames": {"$ref": "#/$defs/anchored_id"},
+                 "additionalProperties": {"enum": ["low", "medium", "high", "asap"]},
+                 "description": "New priorities for open items of earlier entries: {<entry-id>#<block-id>: low | medium | high | asap}. The latest entry that names an item sets its priority."},
+    "figures": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["file", "caption", "alt"],
+        "properties": {
+          "file": {"$ref": "#/$defs/rel_path", "description": "The figure, normally the PDF of a labfig version: figures/<name>-vN.pdf. The .svg and .png and the record .yaml next to it are found by name."},
+          "kind": {"enum": ["plot", "schematic", "photo", "screenshot", "scan"], "description": "Default plot. Anything else is held for the export-control confirmation."},
+          "library": {"type": "string", "description": "Folder name in the Drive figure library (never a link or an id)."},
+          "caption": {"type": "string", "minLength": 3},
+          "alt": {"type": "string", "minLength": 10},
+          "export_control_confirmed": {"type": "boolean"}
+        }
+      }
+    },
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["file", "source"],
+        "properties": {
+          "file": {"$ref": "#/$defs/rel_path", "description": "The processed data the entry shows (CSV, JSON, NPZ), a few MB at most."},
+          "describes": {"type": "string", "description": "The figure it is plotted in (file stem)."},
+          "source": {"type": "string", "minLength": 3, "description": "Where the raw data lives: Drive folder path, run id, cluster job, repository commit."}
+        }
+      }
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["file"],
+        "properties": {
+          "file": {"$ref": "#/$defs/rel_path"},
+          "description": {"type": "string"},
+          "export_control_confirmed": {"type": "boolean"}
+        }
+      }
+    },
+    "epics": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["file", "group"],
+        "properties": {
+          "file": {"$ref": "#/$defs/rel_path"},
+          "group": {"type": "string", "minLength": 1},
+          "label": {"type": "string"}
+        }
+      }
+    },
+    "refs": {"type": "object", "additionalProperties": {"type": "string"}},
+    "backfilled": {"anyOf": [{"$ref": "#/$defs/date"}, {"type": "null"}], "description": "The day the entry was written, when that is more than the allowed delay after `date`."},
+    "migrated_from": {"anyOf": [{"type": "string", "pattern": "^[\\w.-]+@[0-9a-f]{7,40}$"}, {"type": "null"}]},
+    "logged": {"type": "string", "description": "Logged-at time of a migrated entry (ISO 8601), from the source repository's history."},
+    "reviewed": {
+      "anyOf": [{"enum": ["ferpa", "health"]}, {"type": "array", "items": {"enum": ["ferpa", "health"]}, "uniqueItems": true}],
+      "description": "The author has read the lines the checker flagged and they are harmless; recorded."
+    },
+    "release": {"enum": ["candidate", "no", null], "description": "Candidate for a reviewed public release of log-book scenarios (an export the author approves)."}
+  }
+}

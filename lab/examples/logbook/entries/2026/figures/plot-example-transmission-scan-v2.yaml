@@ -1,0 +1,15 @@
+# Written by labfig.save (lab-templates matplotlib/labfig.py). Never edited or overwritten:
+# a changed figure is the next version, with its own record.
+figure: "plot-example-transmission-scan"
+version: 2
+files: ["plot-example-transmission-scan-v2.pdf", "plot-example-transmission-scan-v2.svg", "plot-example-transmission-scan-v2.png"]
+created: "2026-10-01"
+author: "A. Author"
+modified: "2026-10-06"
+modified_by: "A. Author"
+saved: "2026-10-13T15:45:48-05:00"
+template: {"version": "v2026.10.16", "commit": "8b63564-dirty", "url": "https://github.com/jonas-ka/lab-templates/tree/8b63564b29693cdc86431e05489838708f7d2d66"}
+code: {"file": "examples/logbook/scripts/draw_transmission_scan.py", "repository": "https://github.com/jonas-ka/lab-templates", "commit": "8b63564b29693cdc86431e05489838708f7d2d66-dirty", "copies": []}
+command: ["draw_transmission_scan.py"]
+data: {"fingerprint": "sha256:9906f7a66018dc28f77164ebe23cfbf9996db7d0e718a4b485f2759e2c9ef539", "id": null, "files": [{"path": "../data/transmission-scan-r017.csv", "sha256": "8c157e44f8dfcadcc1bace406813dd7d76ff0ca31766b9084feb8d0d6505cf1d"}]}
+info_strip_in: 0.4

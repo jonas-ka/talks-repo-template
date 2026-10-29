@@ -1,0 +1,24 @@
+# Written by `logbook init-github` (lab-templates). Every Monday an issue "Week ending …": new
+# entries by project, open items with their age, calibrations about to expire. Subscribers get
+# it by e-mail.
+name: digest
+on:
+  schedule:
+    - cron: "0 13 * * 1"
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: astral-sh/setup-uv@v6
+      - name: Write the digest
+        run: uv run --project lab/logbook logbook digest > digest.md
+      - name: Open the issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue create --title "Week ending $(date +%F)" --body-file digest.md

@@ -81,9 +81,18 @@ belongs in a chat of its own, not in a talk's.
 
 ## Working style
 
-- The log book in `notes/` records what happened, when and why (decisions, numbers,
-  open items); append an entry after substantial work and compile it
-  (`lab/docs/LOGBOOK_GUIDE.md`).
+- **Moved on 2026-10-14.** Log-book entries go to Karthein Notes (`tamu-edu/Karthein-Notes`, project
+  Talks; read it at https://notes.karthein.com). The Typst log book `notes/talks-repo-logbook.typ` is frozen: its entries were
+  migrated, it stays as history and is never appended to again.
+  Write an entry from this repository with `uv run --project lab/logbook logbook new --from draft.md` (the draft is
+  Markdown with a short YAML header: title, kind, subproject; `logbook.yaml` here names the
+  central book and the project, and the command submits the entry as a pull request that merges
+  itself once the checks pass), or with the "New entry" form on GitHub. Log decisions, findings
+  with their numbers, problems and open items, the day the work is done; a mistake is corrected by
+  a new entry, never by editing an old one. Format: `lab/docs/LOGBOOK_FORMAT.md`.
+  Keep `lab/` current: `lab/scripts/lab-templates.sh check`, then `pull <tag>` after reading
+  `lab/CHANGELOG.md` (the log-book tools need v2026.10.28 or later).
+**Copy of the log book here (D30).** At the start of a session run `uv run --project lab/logbook logbook pull`: it writes `logbook/`, this project's entries with their figures, the wiki pages they need and `SUMMARY.md` (read it: what is open). Commit `logbook/` when it changed, with only that path; its own `.gitignore` keeps the PDF and the one-file view out of git. Never edit `logbook/` by hand: the next pull replaces it.
 
 - Answer questions before making changes. Ask permission before editing or deleting.
 - Explain in plain language first; define terms as they appear.
@@ -328,6 +337,7 @@ space) and keep math out of plain text unless wrapped in `#eq(alt: ...)`.
 
 ```yaml
 title: "..."
+title_slide: 'First line \ second line'   # optional: Typst markup for the title slide only (line breaks)
 date: 2026-11-02
 event: "..."
 duration_min: 25            # blocks get duration minus 3 (title + questions)
@@ -341,6 +351,7 @@ sponsors: true              # DOE + Genesis logos in the footer
 spine: true                 # false for test decks: do not append to talks.yaml
 reserved_min: 3             # optional: minutes kept for title + questions (short slots: 0)
 exclude: [group-acknowledgements]   # optional: block ids never used, even `always` ones
+captions: photos            # optional: photos (default: photo captions only) | true | false
 ```
 
 `talks generate <slug>` selects blocks, materialises their assets, writes `main.typ`,
@@ -362,10 +373,33 @@ timing, asset problems, and `updates.md` entries newer than the last talk on the
   `text-color`, `panel`, `fill-color`, `radius`, `lifted()` in the theme; the palette sheet is
   in `Figures/_logos-and-palette/`). Captions are one
   line at 11 pt, never smaller.
+- **Photos get a caption, plots and graphics do not** (the author, 2026-10-23). The theme applies it:
+  `cat-fig` gives a photo (catalog `kind: photo`) its `caption:` (else the catalog caption) and
+  hides captions of every other kind; a hand-placed `caption-line` shows only with `photo: true`.
+  Exceptions per figure: `cat-fig(..., caption: none)` (e.g. the campus view on the <Your University>
+  slide), or `caption-on: true | false` / `caption-line(on: ...)`. A brief may set `captions: true`
+  (all) or `false` (none); the default is `photos`.
 - Touying reveal markers (`only`, `uncover`, `pause`) must sit at the top level of a slide
   or composer column, not inside boxes or function bodies; `layout` reports the full body
   height including the header, so use fixed column heights (~296 pt).
 - One figure per slide, minimal text, no bullet walls.
+- **Plots go in as SVG, never PNG** (the author, 2026-10-20): `cat-fig` takes the catalog's `svg` twin;
+  a block that calls `image(...)` itself uses `e.svg` for plots and schematics. A plot without a
+  vector source is redrawn (lab style, `labfig`) rather than inserted as a raster; photos and
+  astronomical maps stay raster.
+- **Citations appear with what they cite** (the author, 2026-10-20): on a slide with build steps, a
+  citation shows from the step that brings in the cited content, not on every step. Give
+  `footer-citation` as a list of `(steps, citation)` pairs, steps as in `only`:
+  `footer-citation: (("2", [McGuire ++ ...]), ("3-", [Kamiński ++ ...]))`; plain content still
+  shows on every step. A new topic gets a new slide (its own page number), not more steps.
+- **Footer citations** (the author, 2026-10-23): one size everywhere (`cite-size`, 10 pt), never scaled; one
+  wider than `cite-max` (440 pt next to the sponsor logos, 540 pt without; ~95 / ~120 characters) stops the build with its text. Every reference is a
+  link: `doi("10.1103/...")[Cao ++ PRC 102, 024311 (2020)]`, `arxiv("2605.09139")[...]`, or
+  `link(url)[...]` for repositories and web pages (check DOIs on Crossref; APS DOIs from 2026 on are not
+  built from volume and page). Several references go through `refs(a, b, ...)`, which keeps them
+  apart by a spaced middle dot (`cite-sep`). Words as short as possible: `Data: Nörtershäuser (TU
+  Darmstadt)`, `Code: nuclear-chart-plotter` (linked to the repository), journal abbreviations,
+  no "and refs. therein". Private sources (FastSims, proposals, grants) stay unlinked.
 - **Text budget** (the author, 2026-10-07): a slide with more than 120 words of body text (type of
   11.5 pt and up; captions, footnotes and figure labels do not count) is text-heavy and loses
   at least 10 % of its words in the layout pass. `talks layout` counts the words per page and
@@ -390,6 +424,10 @@ timing, asset problems, and `updates.md` entries newer than the last talk on the
 - Fonts, colours, and logo placement are defined in `themes/` (fixed at the theme step;
   until then, do not invent them).
 - Prefer the newest version of a figure. Never use a superseded asset.
+- **Physical quantities in italics** (the author, 2026-10-23), in figures and on slides: *N*, *Z*, *A*, *μ*, *Q*₀,
+  *β*₃ (`$\mathbfit{N}$` in a bold matplotlib label, `_N_` or `$N$` in Typst); units, element symbols
+  and word subscripts stay upright. Axes of integer quantities (*N*, *Z*) get a minor tick at every
+  integer where the major ticks skip some.
 - Plot palettes are colour-blind-safe; the approved palette and its measured contrast
   ratios are recorded in `lab/themes/palette.yaml`; `lab/themes/karthein.mplstyle` applies the figure
   style in matplotlib; `lab/docs/STYLE.md` is the one-page summary of the whole style. Fonts: STIX

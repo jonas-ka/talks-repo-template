@@ -1,0 +1,54 @@
+# Written by `logbook init-github` (lab-templates). An export of a selection as a PDF, for someone
+# outside the lab. Anyone with write access may request it; the job waits in the environment
+# "export", whose required reviewer (the PI) approves or rejects it. Every request is logged on
+# the issue "Exports".
+name: export
+on:
+  workflow_dispatch:
+    inputs:
+      note: {description: "Who it is for and why", required: true}
+      project: {description: "Project(s), comma separated", required: false}
+      person: {description: "Handle(s), comma separated", required: false}
+      apparatus: {description: "Apparatus id(s), comma separated", required: false}
+      kind: {description: "Kind(s), comma separated", required: false}
+      tag: {description: "Tag(s), comma separated", required: false}
+      from: {description: "From date YYYY-MM-DD", required: false}
+      to: {description: "To date YYYY-MM-DD", required: false}
+      query: {description: "Words the entries must contain", required: false}
+      anonymise: {description: "Show authors by role, not by name", type: boolean, default: false}
+permissions:
+  contents: read
+  issues: write
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    environment: export
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: astral-sh/setup-uv@v6
+      - uses: typst-community/setup-typst@v4
+        with: {typst-version: "0.15.1"}
+      - name: Install pandoc
+        run: |
+          curl -fsSL -o /tmp/pandoc.deb https://github.com/jgm/pandoc/releases/download/3.12/pandoc-3.12-1-amd64.deb
+          sudo dpkg -i /tmp/pandoc.deb
+      - name: Render the selection
+        env:
+          IN: ${{ toJSON(github.event.inputs) }}
+          REQUESTER: ${{ github.actor }}
+        run: uv run --project lab/logbook logbook export --from-json "$IN" --requested-by "$REQUESTER" --approved-by "the environment's reviewer" --out export/logbook-export.pdf
+      - uses: actions/upload-artifact@v4
+        with: {name: logbook-export, path: export/, retention-days: 30}
+      - name: Log the export on the issue "Exports"
+        env:   # inputs only through the environment, never pasted into the script
+          GH_TOKEN: ${{ github.token }}
+          NOTE: ${{ github.event.inputs.note }}
+          IN: ${{ toJSON(github.event.inputs) }}
+          ACTOR: ${{ github.actor }}
+          RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          n=$(gh issue list --search 'Exports in:title' --state all --json number,title -q '.[] | select(.title=="Exports") | .number' | head -1)
+          [ -n "$n" ] || n=$(gh issue create --title Exports --body "Every export of the log book, one comment each." | grep -o '[0-9]*$')
+          printf 'Export requested by @%s and approved in %s\n\nPurpose: %s\n\nSelection:\n```json\n%s\n```\n' "$ACTOR" "$RUN" "$NOTE" "$IN" > comment.md
+          gh issue comment "$n" --body-file comment.md

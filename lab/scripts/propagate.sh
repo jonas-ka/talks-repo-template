@@ -14,11 +14,11 @@ ONLY="${2:-}"
 PROJECTS="${PROJECTS:-$HOME/Projects}"
 consumers() {
   cat <<'EOF'
-talks-repo|typst compile --root . --pdf-standard ua-1 talks/2026-09-group-meeting/main.typ /tmp/lab-check.pdf && uv run talks course build --course courses/example-course --force >/dev/null
+talks-repo|typst compile --root . --pdf-standard ua-1 "$(ls -d talks/*.group-meeting | tail -1)/main.typ" /tmp/lab-check.pdf && uv run talks course build --course courses/example-course --force >/dev/null
 phys206-mechanics|uv run talks course build --force >/dev/null
 phys689-nucl-exp|uv run talks course build --force >/dev/null
 karthein-cv|uv run cv build --public >/dev/null
-cyclotron-talks|typst compile --root . --pdf-standard ua-1 docs/host-guide/host-guide.typ /tmp/lab-check.pdf
+cyclotron-talks|typst compile --root . --pdf-standard ua-1 docs/host-guide/CYCL_talks_host_guide.typ /tmp/lab-check.pdf
 EOF
 }
 failed=""
@@ -36,5 +36,9 @@ consumers | while IFS='|' read -r name check; do
     echo "   check FAILED after the pull (see /tmp/lab-check.log); pull committed, not pushed"
     tail -5 /tmp/lab-check.log | sed 's/^/   | /'
   fi
+  # The check rebuilds documents and rewrites tracked files (build reports, "generated on" lines).
+  # The tree was clean before the pull (checked above), so restore them: otherwise the next run
+  # finds "uncommitted changes" and skips this repository. New untracked build outputs stay.
+  git checkout -q -- . && git diff-index --quiet HEAD -- || echo "   could not restore files rewritten by the check"
 done
 rm -f /tmp/lab-check.pdf

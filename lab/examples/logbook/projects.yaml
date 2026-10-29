@@ -1,0 +1,5 @@
+- name: Example experiment
+  subprojects: [Ion source, Beamline]
+  wiki: projects/example-experiment
+- name: Log book & guides
+  wiki: howto/log-book

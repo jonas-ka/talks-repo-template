@@ -26,6 +26,7 @@
 //   typst compile --root . --features html --format html --input mode=student <file>.typ
 
 #import "tokens.typ": *
+#import "figure-strip.typ": strip-image, entry-strip, resolve-strip
 #import "speak-math.typ": speak, apply-alts, math-body, spoken-eq
 
 #let mode = sys.inputs.at("mode", default: "student")
@@ -54,9 +55,13 @@
 // ---------------------------------------------------------------- figures
 /// A numbered figure with mandatory alt text and a caption:
 ///   #fig("/assets/figures/x.svg", alt: "...", width: 70%, caption: [Free-body diagram of the block.])
-#let fig(path, alt: none, width: 80%, caption: none, label: none) = {
+/// `strip`: the height of an information strip below the figure (labfig.py), cut off here;
+/// `auto` finds it in the file (SVG), `0pt` keeps the file whole.
+#let fig(path, alt: none, width: 80%, caption: none, label: none, strip: auto) = {
+  let strip = resolve-strip(path, strip)
   assert(alt != none, message: "every figure needs alt text")
-  let f = figure(image(path, width: width, alt: alt), caption: caption)
+  let img = if strip > 0pt { strip-image(path, strip: strip, alt: alt, width: width) } else { image(path, width: width, alt: alt) }
+  let f = figure(img, caption: caption)
   if label != none { [#f #label] } else { f }
 }
 
@@ -68,7 +73,7 @@
   if path == none { path = e.at("file", default: none) }
   assert(path != none, message: "asset " + id + " has no file; run `talks generate` to materialize it")
   let cap = if caption == auto { e.at("caption", default: none) } else { caption }
-  fig("/assets/" + path, alt: e.alt, width: width, caption: cap, label: label)
+  fig("/assets/" + path, alt: e.alt, width: width, caption: cap, label: label, strip: entry-strip(e))
 }
 
 // ---------------------------------------------------------------- equations
@@ -311,6 +316,7 @@
   day: none,         // "Monday", "Wednesday", "Friday": printed with the date
   budget: none,      // the meeting's writing budget in minutes (lecture copy: total vs budget)
   plan: none,        // the meeting's time plan, ((12, [demos]), (36, [lecture])), lecture copy only
+  page: (:),         // extra `set page` arguments, e.g. (width: 11in, height: auto); width/height win over paper
   body,
 ) = {
   let heading-line = if number != none { [#kind #number: #title] } else { [#kind: #title] }
@@ -319,11 +325,13 @@
   set text(font: ("STIX Two Text", "Helvetica Neue"), size: if is-lecture { 12pt } else { 11pt }, fill: ink, lang: lang)
   show math.equation: set text(font: "STIX Two Math")
   set par(justify: true, leading: if is-lecture { 0.85em } else { 0.65em }, spacing: if is-lecture { 1.3em } else { 1em })
-  set page(
+  // `page` is the parameter here, so the element is `std.page`.
+  set std.page(
     paper: "us-letter",
+    ..page,
     margin: (x: 1in, top: 1.05in, bottom: 0.95in),
     header: context {
-      if counter(page).get().first() > 1 {
+      if counter(std.page).get().first() > 1 {
         set text(size: 9.5pt, fill: muted)
         grid(columns: (1fr, auto), [*#course* · #heading-line], if date != none { date } else { [] })
         v(-4pt); line(length: 100%, stroke: 0.5pt + band.darken(20%))
@@ -332,7 +340,7 @@
     footer: context {
       set text(size: 9.5pt, fill: muted)
       line(length: 100%, stroke: 0.5pt + band.darken(20%)); v(-4pt)
-      grid(columns: (1fr, auto, 1fr), author, [Page #counter(page).display() of #counter(page).final().first()], align(right)[#institution])
+      grid(columns: (1fr, auto, 1fr), author, [Page #counter(std.page).display() of #counter(std.page).final().first()], align(right)[#institution])
     },
   )
   // Paged: the title block is the one level-1 heading (PDF H1) and sections written as `=` are
